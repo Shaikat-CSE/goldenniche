@@ -1,0 +1,70 @@
+{% load static %}
+{% load custom_filters %}
+
+{% if products %}
+<div class="row">
+    {% for product in products %}
+    <div class="col-lg-4 col-md-6 col-sm-6">
+        <div class="product__item">
+            <div class="product__item__pic set-bg" data-setbg="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/product/product-1.jpg' %}{% endif %}">
+                <div class="product__label">
+                    <span>{{ product.category.name }}</span>
+                </div>
+            </div>
+            <div class="product__item__text">
+                <h6><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></h6>
+                <div class="product__item__price">
+                    {% if product.discount_price %}
+                    <span class="old-price">৳{{ product.price }}</span>
+                    ৳{{ product.discount_price }}
+                    {% else %}
+                    ৳{{ product.price }}
+                    {% endif %}
+                </div>
+                <div class="product__item__action">
+                    <button class="add-to-wishlist" data-product-id="{{ product.id }}">
+                        <i class="fa fa-heart"></i>
+                    </button>
+                    <button class="add-to-cart" data-product-id="{{ product.id }}">
+                        <i class="fa fa-shopping-cart"></i>
+                    </button>
+                </div>
+                <div class="product__item__rating">
+                    {% with rating=product.average_rating|default:0 %}
+                    {% for i in "12345" %}
+                    {% if forloop.counter <= rating|floatformat:"0"|add:"0" %}
+                    <i class="fa fa-star"></i>
+                    {% else %}
+                    <i class="fa fa-star-o"></i>
+                    {% endif %}
+                    {% endfor %}
+                    {% endwith %}
+                    <span>({{ product.review_count|default:0 }})</span>
+                </div>
+                {% if product.discount_price %}
+                <div class="product__discount__percent">
+                    -{{ product|discount_percentage }}%
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-info text-center">
+            No products found matching your criteria. Please try different filters.
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    // Initialize background images
+    document.querySelectorAll('.set-bg').forEach(element => {
+        const bg = element.getAttribute('data-setbg');
+        element.style.backgroundImage = `url(${bg})`;
+    });
+</script> 

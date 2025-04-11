@@ -1,0 +1,181 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Activity Logs - Dashboard{% endblock %}
+
+{% block breadcrumb %}
+    <span><a href="{% url 'dashboard:home' %}">Dashboard</a></span> / 
+    <span>Activity Logs</span>
+{% endblock %}
+
+{% block content %}
+<div class="activity-list">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Activity Logs</h2>
+    </div>
+    
+    <!-- Alerts for messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Main Card -->
+    <div class="card">
+        <div class="card-body">
+            <!-- Search and Filter -->
+            <div class="row mb-4">
+                <div class="col-lg-12">
+                    <form method="get" class="d-flex flex-wrap">
+                        <div class="input-group me-2 mb-2 mb-md-0" style="max-width: 300px;">
+                            <input type="text" name="q" class="form-control" placeholder="Search in description..." value="{{ search_query|default:'' }}">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="input-group me-2 mb-2 mb-md-0" style="max-width: 200px;">
+                            <label class="input-group-text" for="userFilter">User</label>
+                            <select name="user" id="userFilter" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Users</option>
+                                {% for user_obj in users %}
+                                    <option value="{{ user_obj.id }}" {% if selected_user == user_obj.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ user_obj.username }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="input-group me-2 mb-2 mb-md-0" style="max-width: 200px;">
+                            <label class="input-group-text" for="actionFilter">Action</label>
+                            <select name="action" id="actionFilter" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Actions</option>
+                                {% for action_val in actions %}
+                                    <option value="{{ action_val }}" {% if selected_action == action_val %}selected{% endif %}>
+                                        {{ action_val|title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="input-group me-2 mb-2 mb-md-0" style="max-width: 200px;">
+                            <label class="input-group-text" for="entityTypeFilter">Entity Type</label>
+                            <select name="entity_type" id="entityTypeFilter" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Types</option>
+                                {% for entity_type_val in entity_types %}
+                                    <option value="{{ entity_type_val }}" {% if selected_entity_type == entity_type_val %}selected{% endif %}>
+                                        {{ entity_type_val|title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        {% if search_query or selected_user or selected_action or selected_entity_type %}
+                            <a href="{% url 'dashboard:activity_list' %}" class="btn btn-outline-secondary mb-2 mb-md-0">
+                                <i class="fas fa-times me-1"></i> Clear Filters
+                            </a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Activity Table -->
+            {% if activities %}
+                <div class="table-responsive">
+                    <table id="activityTable" class="datatable">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Entity Type</th>
+                                <th>Description</th>
+                                <th>Timestamp</th>
+                                <th>IP Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activity in activities %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'dashboard:activity_list' %}?user={{ activity.user.id }}" class="text-decoration-none">
+                                            <div class="d-flex align-items-center">
+                                                {% if activity.user.profile.avatar %}
+                                                    <img src="{{ activity.user.profile.avatar.url }}" alt="{{ activity.user.username }}" class="rounded-circle me-2" width="30" height="30">
+                                                {% else %}
+                                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                                        {{ activity.user.username|first|upper }}
+                                                    </div>
+                                                {% endif %}
+                                                <span>{{ activity.user.username }}</span>
+                                            </div>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if activity.action == 'create' %}success{% elif activity.action == 'update' %}info{% elif activity.action == 'delete' %}danger{% elif activity.action == 'login' or activity.action == 'logout' %}secondary{% else %}primary{% endif %}">
+                                            {{ activity.action|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'dashboard:activity_list' %}?entity_type={{ activity.entity_type }}" class="badge bg-light text-dark text-decoration-none entity-type-display">
+                                            {{ activity.entity_type|title }}
+                                        </a>
+                                    </td>
+                                    <td>{{ activity.description }}</td>
+                                    <td>
+                                        <span title="{{ activity.created_at|date:'Y-m-d H:i:s' }}">
+                                            {{ activity.created_at|timesince }} ago
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if activity.ip_address %}
+                                            <span class="text-monospace">{{ activity.ip_address }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-chart-line fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted">No Activity Logs Found</h4>
+                    {% if search_query or selected_user or selected_action or selected_entity_type %}
+                        <p class="text-muted">No activity logs match your selected filters.</p>
+                        <a href="{% url 'dashboard:activity_list' %}" class="btn btn-outline-secondary mt-3">
+                            <i class="fas fa-undo me-2"></i> Clear Filters
+                        </a>
+                    {% else %}
+                        <p class="text-muted">There are currently no activity logs in the system.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- The DataTable initialization is now handled by dashboard.js -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Custom filter for replacing underscores with spaces
+        // This is needed because Django templates don't have a built-in replace filter
+        const entityTypeElements = document.querySelectorAll('.entity-type-display');
+        entityTypeElements.forEach(function(element) {
+            let text = element.textContent;
+            element.textContent = text.replace(/_/g, ' ');
+        });
+    });
+</script>
+{% endblock %} 

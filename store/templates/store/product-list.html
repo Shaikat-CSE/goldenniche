@@ -1,0 +1,301 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}{% if category %}{{ category.name }}{% else %}All Products{% endif %} - Golden Niche BD{% endblock %}
+
+{% block content %}
+<!-- BREADCRUMB -->
+<div id="breadcrumb" class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">{% if category %}{{ category.name }}{% else %}All Products{% endif %}</h3>
+                <ul class="breadcrumb-tree">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'product_list' %}">Products</a></li>
+                    {% if category %}
+                    <li class="active">{{ category.name }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /BREADCRUMB -->
+
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <!-- ASIDE -->
+            <div id="aside" class="col-md-3">
+                <!-- aside Widget -->
+                <div class="aside">
+                    <h3 class="aside-title">Categories</h3>
+                    <div class="checkbox-filter">
+                        {% for cat in categories %}
+                        <div class="input-checkbox">
+                            <input type="checkbox" id="category-{{ cat.id }}" {% if category.id == cat.id %}checked{% endif %}>
+                            <label for="category-{{ cat.id }}">
+                                <span></span>
+                                <a href="{% url 'products_by_category' cat.slug %}">{{ cat.name }}</a>
+                                <small>({{ cat.products.count }})</small>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <!-- /aside Widget -->
+
+                <!-- aside Widget -->
+                <div class="aside">
+                    <h3 class="aside-title">Price</h3>
+                    <div class="price-filter">
+                        <div id="price-slider"></div>
+                        <div class="input-number price-min">
+                            <input id="price-min" type="number" value="0">
+                            <span class="qty-up">+</span>
+                            <span class="qty-down">-</span>
+                        </div>
+                        <span>-</span>
+                        <div class="input-number price-max">
+                            <input id="price-max" type="number" value="10000">
+                            <span class="qty-up">+</span>
+                            <span class="qty-down">-</span>
+                        </div>
+                        <button id="apply-price-filter" class="primary-btn">Apply</button>
+                    </div>
+                </div>
+                <!-- /aside Widget -->
+
+                <!-- aside Widget -->
+                <div class="aside">
+                    <h3 class="aside-title">Top selling</h3>
+                    {% for product in products|dictsortreversed:"id"|slice:":5" %}
+                    <div class="product-widget">
+                        <div class="product-img">
+                            {% if product.image and product.image.url %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <img src="{% static 'img/default-product.jpg' %}" alt="{{ product.name }}">
+                            {% endif %}
+                        </div>
+                        <div class="product-body">
+                            <p class="product-category">{{ product.category.name }}</p>
+                            <h3 class="product-name"><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></h3>
+                            {% if product.discount_price %}
+                            <h4 class="product-price">৳{{ product.discount_price }} <del class="product-old-price">৳{{ product.price }}</del></h4>
+                            {% else %}
+                            <h4 class="product-price">৳{{ product.price }}</h4>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <!-- /aside Widget -->
+            </div>
+            <!-- /ASIDE -->
+
+            <!-- STORE -->
+            <div id="store" class="col-md-9">
+                <!-- store top filter -->
+                <div class="store-filter clearfix">
+                    <div class="store-sort">
+                        <label>
+                            Sort By:
+                            <select id="sort-select" class="input-select">
+                                <option value="0">Default</option>
+                                <option value="price_asc">Price: Low to High</option>
+                                <option value="price_desc">Price: High to Low</option>
+                                <option value="name_asc">Name: A-Z</option>
+                                <option value="name_desc">Name: Z-A</option>
+                                <option value="newest">Newest</option>
+                            </select>
+                        </label>
+
+                        <label>
+                            Show:
+                            <select class="input-select">
+                                <option value="0">12</option>
+                                <option value="1">24</option>
+                                <option value="2">36</option>
+                            </select>
+                        </label>
+                    </div>
+                    <ul class="store-grid">
+                        <li class="active"><i class="fa fa-th"></i></li>
+                        <li><a href="#"><i class="fa fa-th-list"></i></a></li>
+                    </ul>
+                </div>
+                <!-- /store top filter -->
+
+                <!-- store products -->
+                <div class="row">
+                    {% if products %}
+                        {% for product in products %}
+                        <!-- product -->
+                        <div class="col-md-4 col-xs-6">
+                            <div class="product">
+                                <div class="product-img">
+                                    {% if product.image and product.image.url %}
+                                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                                    {% else %}
+                                        <img src="{% static 'img/default-product.jpg' %}" alt="{{ product.name }}">
+                                    {% endif %}
+                                    <div class="product-label">
+                                        {% if product.is_sale %}
+                                        <span class="sale">-{{ product.get_discount_percentage }}%</span>
+                                        {% endif %}
+                                        {% if product.is_new %}
+                                        <span class="new">NEW</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="product-body">
+                                    <p class="product-category">{{ product.category.name }}</p>
+                                    <h3 class="product-name"><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></h3>
+                                    {% if product.discount_price %}
+                                    <h4 class="product-price">৳{{ product.discount_price }} <del class="product-old-price">৳{{ product.price }}</del></h4>
+                                    {% else %}
+                                    <h4 class="product-price">৳{{ product.price }}</h4>
+                                    {% endif %}
+                                    <div class="product-rating">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star-o"></i>
+                                    </div>
+                                    <div class="product-btns">
+                                        <button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+                                        <button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+                                        <button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+                                    </div>
+                                </div>
+                                <div class="add-to-cart">
+                                    <button class="add-to-cart-btn" data-product-id="{{ product.id }}"><i class="fa fa-shopping-cart"></i> add to cart</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /product -->
+                        {% if forloop.counter|divisibleby:3 %}
+                        <div class="clearfix"></div>
+                        {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <p>No products found.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- /store products -->
+
+                <!-- store bottom filter -->
+                <div class="store-filter clearfix">
+                    <span class="store-qty">Showing {{ products.start_index }}-{{ products.end_index }} of {{ products.paginator.count }} products</span>
+                    <ul class="store-pagination">
+                        {% if products.has_previous %}
+                        <li><a href="?page={{ products.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}"><i class="fa fa-angle-left"></i></a></li>
+                        {% endif %}
+                        
+                        {% for i in products.paginator.page_range %}
+                            {% if products.number == i %}
+                            <li class="active">{{ i }}</li>
+                            {% elif i > products.number|add:'-3' and i < products.number|add:'3' %}
+                            <li><a href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}">{{ i }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if products.has_next %}
+                        <li><a href="?page={{ products.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}"><i class="fa fa-angle-right"></i></a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <!-- /store bottom filter -->
+            </div>
+            <!-- /STORE -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Add to cart functionality
+        $('.add-to-cart-btn').on('click', function(e) {
+            e.preventDefault();
+            var productId = $(this).data('product-id');
+            
+            $.ajax({
+                url: '{% url "add_to_cart" 0 %}'.replace('0', productId),
+                type: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(data) {
+                    if (data.status === 'success') {
+                        // Update cart count in header
+                        $('.qty').text(data.cart_count);
+                        
+                        // Show success message
+                        alert(data.message);
+                    }
+                },
+                error: function() {
+                    alert('Error adding product to cart');
+                }
+            });
+        });
+        
+        // Sort functionality
+        $('#sort-select').on('change', function() {
+            var sortValue = $(this).val();
+            if (sortValue !== '0') {
+                var currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('sort', sortValue);
+                window.location.href = currentUrl.toString();
+            }
+        });
+        
+        // Set selected sort option based on URL parameter
+        var urlParams = new URLSearchParams(window.location.search);
+        var sortParam = urlParams.get('sort');
+        if (sortParam) {
+            $('#sort-select').val(sortParam);
+        }
+        
+        // Price filter
+        $('#apply-price-filter').on('click', function() {
+            var minPrice = $('#price-min').val();
+            var maxPrice = $('#price-max').val();
+            
+            var currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('min_price', minPrice);
+            currentUrl.searchParams.set('max_price', maxPrice);
+            window.location.href = currentUrl.toString();
+        });
+        
+        // Set price filter values based on URL parameters
+        var minPriceParam = urlParams.get('min_price');
+        var maxPriceParam = urlParams.get('max_price');
+        if (minPriceParam) {
+            $('#price-min').val(minPriceParam);
+        }
+        if (maxPriceParam) {
+            $('#price-max').val(maxPriceParam);
+        }
+    });
+</script>
+{% endblock %} 

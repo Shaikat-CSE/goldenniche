@@ -1,0 +1,46 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}bKash Payment - Golden Niche{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">bKash Payment</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5>Order Summary</h5>
+                        <p>Order Number: {{ order.order_number }}</p>
+                        <p>Total Amount: ৳{{ order.grand_total }}</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="bkash_number" class="form-label">bKash Number</label>
+                            <input type="text" class="form-control" id="bkash_number" name="bkash_number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="transaction_id" class="form-label">Transaction ID</label>
+                            <input type="text" class="form-control" id="transaction_id" name="transaction_id" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Amount</label>
+                            <input type="number" class="form-control" id="amount" name="amount" value="{{ order.grand_total }}" readonly>
+                        </div>
+                        <div class="alert alert-warning">
+                            <p class="mb-0">Please send ৳{{ order.grand_total }} to our bKash number: 01XXXXXXXXX</p>
+                            <p class="mb-0">After sending the payment, please enter the transaction ID above.</p>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Confirm Payment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,17 @@
+^C
+^C
+^C
+^C
+^C
+^C
+^C
+^C
+^C
+^C
+^C
+^C
+python manage.py collectstatic --noinput
+^C
+cd goldenniche && python -c "import os; os.makedirs('dashboard/static/dashboard/css', exist_ok=True); open('dashboard/static/dashboard/css/dashboard.css', 'w').write('/* Dashboard Styles */\\n.badge-pill { padding: 0.4em 0.7em; }\\n.badge-success { background-color: #28a745; color: #fff; }')"
+^C
+

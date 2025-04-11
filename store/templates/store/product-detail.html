@@ -1,0 +1,581 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - Golden Niche BD{% endblock %}
+
+{% block content %}
+<!-- BREADCRUMB -->
+<div id="breadcrumb" class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">{{ product.name }}</h3>
+                <ul class="breadcrumb-tree">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'product_list' %}">Products</a></li>
+                    <li><a href="{% url 'products_by_category' product.category.slug %}">{{ product.category.name }}</a></li>
+                    <li class="active">{{ product.name }}</li>
+                </ul>
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /BREADCRUMB -->
+
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <!-- Product main img -->
+            <div class="col-md-5 col-md-push-2">
+                <div id="product-main-img">
+                    <div class="product-preview">
+                        {% if product.image and product.image.url %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{% static 'img/default-product.jpg' %}" alt="{{ product.name }}">
+                        {% endif %}
+                    </div>
+                    {% if product.image_1 and product.image_1.url %}
+                    <div class="product-preview">
+                        <img src="{{ product.image_1.url }}" alt="{{ product.name }}">
+                    </div>
+                    {% endif %}
+                    {% if product.image_2 and product.image_2.url %}
+                    <div class="product-preview">
+                        <img src="{{ product.image_2.url }}" alt="{{ product.name }}">
+                    </div>
+                    {% endif %}
+                    {% if product.image_3 and product.image_3.url %}
+                    <div class="product-preview">
+                        <img src="{{ product.image_3.url }}" alt="{{ product.name }}">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- /Product main img -->
+
+            <!-- Product thumb imgs -->
+            <div class="col-md-2  col-md-pull-5">
+                <div id="product-imgs">
+                    <div class="product-preview">
+                        {% if product.image and product.image.url %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{% static 'img/default-product.jpg' %}" alt="{{ product.name }}">
+                        {% endif %}
+                    </div>
+                    {% if product.image_1 and product.image_1.url %}
+                    <div class="product-preview">
+                        <img src="{{ product.image_1.url }}" alt="{{ product.name }}">
+                    </div>
+                    {% endif %}
+                    {% if product.image_2 and product.image_2.url %}
+                    <div class="product-preview">
+                        <img src="{{ product.image_2.url }}" alt="{{ product.name }}">
+                    </div>
+                    {% endif %}
+                    {% if product.image_3 and product.image_3.url %}
+                    <div class="product-preview">
+                        <img src="{{ product.image_3.url }}" alt="{{ product.name }}">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- /Product thumb imgs -->
+
+            <!-- Product details -->
+            <div class="col-md-5">
+                <div class="product-details">
+                    <h2 class="product-name">{{ product.name }}</h2>
+                    <div>
+                        <div class="product-rating">
+                            {% with ''|center:product.average_rating as range %}
+                            {% for _ in range %}
+                                <i class="fa fa-star"></i>
+                            {% endfor %}
+                            {% endwith %}
+                            {% with ''|center:5 as range %}
+                            {% for _ in range %}
+                                {% if forloop.counter > product.average_rating %}
+                                    <i class="fa fa-star-o"></i>
+                                {% endif %}
+                            {% endfor %}
+                            {% endwith %}
+                        </div>
+                        <a class="review-link" href="#tab3" data-toggle="tab">Add your review</a>
+                    </div>
+                    <div>
+                        {% if product.discount_price %}
+                        <h3 class="product-price">৳{{ product.discount_price }} <del class="product-old-price">৳{{ product.price }}</del></h3>
+                        {% else %}
+                        <h3 class="product-price">৳{{ product.price }}</h3>
+                        {% endif %}
+                        <span class="product-available">{% if product.stock > 0 %}In Stock{% else %}Out of Stock{% endif %}</span>
+                    </div>
+                    <p>{{ product.description|safe }}</p>
+
+                    <div class="add-to-cart">
+                        <div class="qty-label">
+                            Qty
+                            <div class="input-number">
+                                <input type="number" id="product-quantity" value="1" min="1" max="{{ product.stock }}">
+                                <span class="qty-up">+</span>
+                                <span class="qty-down">-</span>
+                            </div>
+                        </div>
+                        <button class="add-to-cart-btn" data-product-id="{{ product.id }}"><i class="fa fa-shopping-cart"></i> add to cart</button>
+                    </div>
+
+                    <ul class="product-btns">
+                        <li><button class="add-to-wishlist-btn" data-product-id="{{ product.id }}"><i class="fa fa-heart-o"></i> add to wishlist</button></li>
+                    </ul>
+
+                    <ul class="product-links">
+                        <li>Category:</li>
+                        <li><a href="{% url 'products_by_category' product.category.slug %}">{{ product.category.name }}</a></li>
+                    </ul>
+
+                    <ul class="product-links">
+                        <li>Share:</li>
+                        <li><a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                        <li><a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ product.name }}" target="_blank"><i class="fa fa-twitter"></i></a></li>
+                        <li><a href="https://plus.google.com/share?url={{ request.build_absolute_uri }}" target="_blank"><i class="fa fa-google-plus"></i></a></li>
+                        <li><a href="mailto:?subject={{ product.name }}&body=Check out this product: {{ request.build_absolute_uri }}"><i class="fa fa-envelope"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /Product details -->
+
+            <!-- Product tab -->
+            <div class="col-md-12">
+                <div id="product-tab">
+                    <!-- product tab nav -->
+                    <ul class="tab-nav">
+                        <li class="active"><a data-toggle="tab" href="#tab1">Description</a></li>
+                        <li><a data-toggle="tab" href="#tab2">Details</a></li>
+                        <li><a data-toggle="tab" href="#tab3">Reviews ({{ product.review_count }})</a></li>
+                    </ul>
+                    <!-- /product tab nav -->
+
+                    <!-- product tab content -->
+                    <div class="tab-content">
+                        <!-- tab1  -->
+                        <div id="tab1" class="tab-pane fade in active">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p>{{ product.description|safe }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /tab1  -->
+
+                        <!-- tab2  -->
+                        <div id="tab2" class="tab-pane fade in">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p>{{ product.details|safe }}</p>
+                                    <ul>
+                                        <li>Category: {{ product.category.name }}</li>
+                                        <li>Stock: {{ product.stock }}</li>
+                                        {% if product.is_new %}
+                                        <li>New Arrival</li>
+                                        {% endif %}
+                                        {% if product.is_sale %}
+                                        <li>On Sale: {{ product.get_discount_percentage }}% off</li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /tab2  -->
+
+                        <!-- tab3  -->
+                        <div id="tab3" class="tab-pane fade in">
+                            <div class="row">
+                                <!-- Rating -->
+                                <div class="col-md-3">
+                                    <div id="rating">
+                                        <div class="rating-avg">
+                                            <span>{{ product.average_rating|floatformat:1 }}</span>
+                                            <div class="rating-stars">
+                                                {% with ''|center:product.average_rating as range %}
+                                                {% for _ in range %}
+                                                    <i class="fa fa-star"></i>
+                                                {% endfor %}
+                                                {% endwith %}
+                                                {% with ''|center:5 as range %}
+                                                {% for _ in range %}
+                                                    {% if forloop.counter > product.average_rating %}
+                                                        <i class="fa fa-star-o"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+                                        <ul class="rating">
+                                            {% for rating in product.rating_distribution %}
+                                            <li>
+                                                <div class="rating-stars">
+                                                    {% with ''|center:rating.stars as range %}
+                                                    {% for _ in range %}
+                                                        <i class="fa fa-star"></i>
+                                                    {% endfor %}
+                                                    {% endwith %}
+                                                    {% with ''|center:5 as range %}
+                                                    {% for _ in range %}
+                                                        {% if forloop.counter > rating.stars %}
+                                                            <i class="fa fa-star-o"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    {% endwith %}
+                                                </div>
+                                                <div class="rating-progress">
+                                                    <div class="progress-bar" data-width="{{ rating.percentage }}"></div>
+                                                </div>
+                                                <span class="sum">{{ rating.count }}</span>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!-- /Rating -->
+
+                                <!-- Review Form -->
+                                <div class="col-md-3">
+                                    <div id="review-form">
+                                        {% if user.is_authenticated %}
+                                            <form class="review-form" id="reviewForm" method="post" action="{% url 'add_review' product.id %}">
+                                                {% csrf_token %}
+                                                <div class="input-rating">
+                                                    <span>Your Rating: </span>
+                                                    <div class="stars">
+                                                        <input id="star5" name="rating" value="5" type="radio" required><label for="star5"></label>
+                                                        <input id="star4" name="rating" value="4" type="radio"><label for="star4"></label>
+                                                        <input id="star3" name="rating" value="3" type="radio"><label for="star3"></label>
+                                                        <input id="star2" name="rating" value="2" type="radio"><label for="star2"></label>
+                                                        <input id="star1" name="rating" value="1" type="radio"><label for="star1"></label>
+                                                    </div>
+                                                </div>
+                                                <textarea class="input" name="comment" placeholder="Your Review" required></textarea>
+                                                <button type="submit" class="primary-btn">Submit</button>
+                                            </form>
+                                        {% else %}
+                                            <p>Please <a href="{% url 'login' %}">login</a> to write a review.</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <!-- /Review Form -->
+
+                                <!-- Reviews -->
+                                <div class="col-md-6">
+                                    <div id="reviews">
+                                        <ul class="reviews" id="reviewsList">
+                                            {% for review in reviews %}
+                                            <li>
+                                                <div class="review-heading">
+                                                    <h5 class="name">{{ review.user.username }}</h5>
+                                                    <p class="date">{{ review.created_at|date:"d M Y, g:i A" }}</p>
+                                                    <div class="review-rating">
+                                                        {% with ''|center:review.rating as range %}
+                                                        {% for _ in range %}
+                                                            <i class="fa fa-star"></i>
+                                                        {% endfor %}
+                                                        {% endwith %}
+                                                        {% with ''|center:5 as range %}
+                                                        {% for _ in range %}
+                                                            {% if forloop.counter > review.rating %}
+                                                                <i class="fa fa-star-o empty"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% endwith %}
+                                                    </div>
+                                                </div>
+                                                <div class="review-body">
+                                                    <p>{{ review.comment }}</p>
+                                                </div>
+                                            </li>
+                                            {% empty %}
+                                            <li>
+                                                <div class="review-body">
+                                                    <p>No reviews yet. Be the first to review this product!</p>
+                                                </div>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!-- /Reviews -->
+                            </div>
+                        </div>
+                        <!-- /tab3  -->
+                    </div>
+                    <!-- /product tab content  -->
+                </div>
+            </div>
+            <!-- /product tab -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+
+<!-- Section -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="section-title text-center">
+                    <h3 class="title">Related Products</h3>
+                </div>
+            </div>
+
+            <!-- product -->
+            {% for related_product in related_products %}
+            <div class="col-md-3 col-xs-6">
+                <div class="product">
+                    <div class="product-img">
+                        {% if related_product.image and related_product.image.url %}
+                            <img src="{{ related_product.image.url }}" alt="{{ related_product.name }}">
+                        {% else %}
+                            <img src="{% static 'img/default-product.jpg' %}" alt="{{ related_product.name }}">
+                        {% endif %}
+                        <div class="product-label">
+                            {% if related_product.is_sale %}
+                            <span class="sale">-{{ related_product.get_discount_percentage }}%</span>
+                            {% endif %}
+                            {% if related_product.is_new %}
+                            <span class="new">NEW</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-category">{{ related_product.category.name }}</p>
+                        <h3 class="product-name"><a href="{% url 'product_detail' related_product.slug %}">{{ related_product.name }}</a></h3>
+                        {% if related_product.discount_price %}
+                        <h4 class="product-price">৳{{ related_product.discount_price }} <del class="product-old-price">৳{{ related_product.price }}</del></h4>
+                        {% else %}
+                        <h4 class="product-price">৳{{ related_product.price }}</h4>
+                        {% endif %}
+                        <div class="product-rating">
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star-o"></i>
+                        </div>
+                        <div class="product-btns">
+                            <button class="add-to-wishlist" data-product-id="{{ related_product.id }}"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+                            <button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+                        </div>
+                    </div>
+                    <div class="add-to-cart">
+                        <button class="add-to-cart-btn" data-product-id="{{ related_product.id }}"><i class="fa fa-shopping-cart"></i> add to cart</button>
+                    </div>
+                </div>
+            </div>
+            {% if forloop.counter|divisibleby:4 %}
+            <div class="clearfix"></div>
+            {% endif %}
+            {% endfor %}
+            <!-- /product -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /Section -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Add to cart functionality
+        $('.add-to-cart-btn').on('click', function(e) {
+            e.preventDefault();
+            var productId = $(this).data('product-id');
+            var quantity = $('#product-quantity').val() || 1;
+            
+            $.ajax({
+                url: '{% url "add_to_cart" 0 %}'.replace('0', productId),
+                type: 'GET',
+                data: {
+                    'quantity': quantity
+                },
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(data) {
+                    if (data.status === 'success') {
+                        // ONLY update cart badges, NOT wishlist badges
+                        document.querySelectorAll('.cart-badge').forEach(function(el) {
+                            el.textContent = data.cart_count;
+                        });
+                        
+                        // Show success message
+                        alert(data.message);
+                    }
+                },
+                error: function() {
+                    alert('Error adding product to cart');
+                }
+            });
+        });
+        
+        // Add to wishlist functionality
+        $('.add-to-wishlist-btn').on('click', function(e) {
+            e.preventDefault();
+            var productId = $(this).data('product-id');
+            
+            $.ajax({
+                url: '{% url "add_to_wishlist" 0 %}'.replace('0', productId),
+                type: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(data) {
+                    if (data.status === 'success') {
+                        // ONLY update wishlist badges, NOT cart badges
+                        document.querySelectorAll('.wishlist-badge').forEach(function(el) {
+                            el.textContent = data.wishlist_count;
+                        });
+                        
+                        // Change button appearance
+                        $('.add-to-wishlist-btn').html('<i class="fa fa-heart"></i> added to wishlist');
+                        $('.add-to-wishlist-btn').addClass('added-to-wishlist');
+                        
+                        // Show success message
+                        alert(data.message);
+                    }
+                },
+                error: function() {
+                    alert('Error adding product to wishlist');
+                }
+            });
+        });
+        
+        // Add to wishlist functionality for related products
+        $('.add-to-wishlist').on('click', function(e) {
+            e.preventDefault();
+            var productId = $(this).data('product-id');
+            var $this = $(this);
+            
+            $.ajax({
+                url: '{% url "add_to_wishlist" 0 %}'.replace('0', productId),
+                type: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(data) {
+                    if (data.status === 'success') {
+                        // ONLY update wishlist badges, NOT cart badges
+                        document.querySelectorAll('.wishlist-badge').forEach(function(el) {
+                            el.textContent = data.wishlist_count;
+                        });
+                        
+                        // Change button appearance
+                        $this.find('i').removeClass('fa-heart-o').addClass('fa-heart');
+                        $this.find('.tooltipp').text('added to wishlist');
+                        
+                        // Show success message
+                        alert(data.message);
+                    }
+                },
+                error: function() {
+                    alert('Error adding product to wishlist');
+                }
+            });
+        });
+
+        // Handle review form submission
+        $('#reviewForm').on('submit', function(e) {
+            e.preventDefault();
+            var form = $(this);
+            var formData = form.serialize();
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Add new review to the list
+                        var newReview = `
+                            <li>
+                                <div class="review-heading">
+                                    <h5 class="name">${response.review.user}</h5>
+                                    <p class="date">${response.review.created_at}</p>
+                                    <div class="review-rating">
+                                        ${generateStars(response.review.rating)}
+                                    </div>
+                                </div>
+                                <div class="review-body">
+                                    <p>${response.review.comment}</p>
+                                </div>
+                            </li>
+                        `;
+                        
+                        // Remove "No reviews" message if it exists
+                        if ($('#reviewsList li .review-body p').text().includes('No reviews yet')) {
+                            $('#reviewsList').empty();
+                        }
+                        
+                        // Add new review at the top
+                        $('#reviewsList').prepend(newReview);
+                        
+                        // Update review count in tab
+                        $('.tab-nav li:last-child a').text('Reviews (' + response.review_count + ')');
+                        
+                        // Clear form
+                        form[0].reset();
+                        
+                        // Show success message
+                        alert('Your review has been added successfully!');
+                    }
+                },
+                error: function() {
+                    alert('Error submitting review. Please try again.');
+                }
+            });
+        });
+
+        // Helper function to generate star HTML
+        function generateStars(rating) {
+            var stars = '';
+            for (var i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars += '<i class="fa fa-star"></i>';
+                } else {
+                    stars += '<i class="fa fa-star-o empty"></i>';
+                }
+            }
+            return stars;
+        }
+    });
+</script>
+{% endblock %}
+
+<style>
+    .progress-bar {
+        height: 100%;
+        background-color: #ffc107;
+        transition: width 0.3s ease;
+    }
+    .progress-bar[data-width="5"] { width: 5%; }
+    .progress-bar[data-width="4"] { width: 4%; }
+    .progress-bar[data-width="3"] { width: 3%; }
+    .progress-bar[data-width="2"] { width: 2%; }
+    .progress-bar[data-width="1"] { width: 1%; }
+</style> 

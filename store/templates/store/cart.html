@@ -1,0 +1,482 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>Shopping Cart - Golden Niche</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon-32x32.png' %}">
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
+
+    <!-- Google font -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
+
+    <!-- Bootstrap -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+
+    <!-- Slick -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/slick.css' %}"/>
+    <link type="text/css" rel="stylesheet" href="{% static 'css/slick-theme.css' %}"/>
+
+    <!-- nouislider -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/nouislider.min.css' %}"/>
+
+    <!-- Font Awesome Icon -->
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+
+    <!-- Custom stlylesheet -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    {% include 'store/header.html' %}
+
+    <!-- BREADCRUMB -->
+    <div id="breadcrumb" class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 class="breadcrumb-header">Shopping Cart</h3>
+                    <ul class="breadcrumb-tree">
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li class="active">Shopping Cart</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /BREADCRUMB -->
+
+    <!-- SECTION -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                {% if cart_items %}
+                <div class="col-md-8">
+                    <div class="cart-table">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Subtotal</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cart_item in cart_items %}
+                                <tr>
+                                    <td class="cart-product">
+                                        <a href="{% url 'product_detail' cart_item.product.slug %}">
+                                            {% if cart_item.product.image and cart_item.product.image.url %}
+                                                <img src="{{ cart_item.product.image.url }}" alt="{{ cart_item.product.name }}" width="100">
+                                            {% else %}
+                                                <img src="{% static 'img/default-product.jpg' %}" alt="{{ cart_item.product.name }}" width="100">
+                                            {% endif %}
+                                        </a>
+                                        <h5><a href="{% url 'product_detail' cart_item.product.slug %}">{{ cart_item.product.name }}</a></h5>
+                                    </td>
+                                    <td class="cart-price">
+                                        {% if cart_item.product.discount_price %}
+                                        <h5>৳{{ cart_item.product.discount_price }}</h5>
+                                        {% else %}
+                                        <h5>৳{{ cart_item.product.price }}</h5>
+                                        {% endif %}
+                                    </td>
+                                    <td class="cart-quantity">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default btn-number" data-type="minus" data-product-id="{{ cart_item.product.id }}">
+                                                    <i class="fa fa-minus"></i>
+                                                </button>
+                                            </span>
+                                            <input type="text" class="form-control input-number" value="{{ cart_item.quantity }}" min="1" max="{{ cart_item.product.stock }}" data-product-id="{{ cart_item.product.id }}">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default btn-number" data-type="plus" data-product-id="{{ cart_item.product.id }}">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="cart-subtotal">
+                                        <h5>৳{{ cart_item.sub_total }}</h5>
+                                    </td>
+                                    <td class="cart-delete">
+                                        <a href="#" class="remove-cart-item" data-product-id="{{ cart_item.product.id }}"><i class="fa fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="cart-summary">
+                        <h3>Cart Summary</h3>
+                        <div class="cart-summary-item">
+                            <span>Subtotal</span>
+                            <span>৳{{ sub_total }}</span>
+                        </div>
+                        <div class="cart-summary-item">
+                            <span>Shipping</span>
+                            <span>৳{{ shipping_cost }}</span>
+                        </div>
+                        <div class="cart-summary-item">
+                            <span>Tax</span>
+                            <span>৳{{ tax }}</span>
+                        </div>
+                        <div class="cart-summary-item total">
+                            <span>Total</span>
+                            <span>৳{{ grand_total }}</span>
+                        </div>
+                        <div class="cart-btns">
+                            <a href="{% url 'product_list' %}" class="primary-btn">Continue Shopping</a>
+                            <a href="{% url 'checkout' %}" class="primary-btn">Proceed to Checkout</a>
+                        </div>
+                    </div>
+                    <div class="cart-coupon">
+                        <h4>Apply Coupon</h4>
+                        <form>
+                            <input type="text" class="input" placeholder="Enter your coupon code">
+                            <button class="primary-btn">Apply</button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-md-12">
+                    <div class="alert alert-info text-center">
+                        <h3>Your cart is empty</h3>
+                        <p>Looks like you haven't added any products to your cart yet.</p>
+                        <a href="{% url 'product_list' %}" class="primary-btn">Continue Shopping</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /SECTION -->
+
+    <!-- SECTION -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="section-title text-center">
+                        <h3 class="title">You May Also Like</h3>
+                    </div>
+                </div>
+
+                {% for product in you_may_like %}
+                <!-- product -->
+                <div class="col-md-3 col-xs-6">
+                    <div class="product">
+                        <div class="product-img">
+                            {% if product.image and product.image.url %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <img src="{% static 'img/default-product.jpg' %}" alt="{{ product.name }}">
+                            {% endif %}
+                            <div class="product-label">
+                                {% if product.is_sale %}
+                                <span class="sale">-{{ product.get_discount_percentage }}%</span>
+                                {% endif %}
+                                {% if product.is_new %}
+                                <span class="new">NEW</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="product-body">
+                            <p class="product-category">{{ product.category.name }}</p>
+                            <h3 class="product-name"><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></h3>
+                            {% if product.discount_price %}
+                            <h4 class="product-price">৳{{ product.discount_price }} <del class="product-old-price">৳{{ product.price }}</del></h4>
+                            {% else %}
+                            <h4 class="product-price">৳{{ product.price }}</h4>
+                            {% endif %}
+                            <div class="product-rating">
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star-o"></i>
+                            </div>
+                            <div class="product-btns">
+                                <button class="add-to-wishlist" data-product-id="{{ product.id }}"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+                                <button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+                                <button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+                            </div>
+                        </div>
+                        <div class="add-to-cart">
+                            <button class="add-to-cart-btn" data-product-id="{{ product.id }}"><i class="fa fa-shopping-cart"></i> add to cart</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- /product -->
+                {% if forloop.counter|divisibleby:4 %}
+                <div class="clearfix"></div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /SECTION -->
+
+    {% include 'store/footer.html' %}
+
+    <!-- jQuery Plugins -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/slick.min.js' %}"></script>
+    <script src="{% static 'js/nouislider.min.js' %}"></script>
+    <script src="{% static 'js/jquery.zoom.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Update quantity
+            $('.btn-number').on('click', function(e) {
+                e.preventDefault();
+                
+                var type = $(this).data('type');
+                var productId = $(this).data('product-id');
+                var input = $('input[data-product-id="' + productId + '"]');
+                var currentVal = parseInt(input.val());
+                
+                if (!isNaN(currentVal)) {
+                    if (type === 'minus') {
+                        if (currentVal > 1) {
+                            // Decrease quantity
+                            $.ajax({
+                                url: '{% url "remove_from_cart" 0 %}'.replace('0', productId),
+                                type: 'GET',
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                success: function(data) {
+                                    if (data.status === 'success') {
+                                        // Reload page to update cart
+                                        location.reload();
+                                    }
+                                }
+                            });
+                        }
+                    } else if (type === 'plus') {
+                        // Increase quantity
+                        $.ajax({
+                            url: '{% url "add_to_cart" 0 %}'.replace('0', productId),
+                            type: 'GET',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            success: function(data) {
+                                if (data.status === 'success') {
+                                    // Reload page to update cart
+                                    location.reload();
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+            
+            // Update quantity on input change
+            $('.input-number').on('change', function() {
+                var productId = $(this).data('product-id');
+                var quantity = parseInt($(this).val());
+                
+                if (!isNaN(quantity) && quantity > 0) {
+                    $.ajax({
+                        url: '{% url "update_cart" %}',
+                        type: 'POST',
+                        data: {
+                            'product_id': productId,
+                            'quantity': quantity,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: function(data) {
+                            if (data.status === 'success') {
+                                // Reload page to update cart
+                                location.reload();
+                            }
+                        }
+                    });
+                }
+            });
+            
+            // Remove item from cart
+            $('.remove-cart-item').on('click', function(e) {
+                e.preventDefault();
+                
+                var productId = $(this).data('product-id');
+                
+                $.ajax({
+                    url: '{% url "remove_cart_item" 0 %}'.replace('0', productId),
+                    type: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(data) {
+                        if (data.status === 'success') {
+                            // Reload page to update cart
+                            location.reload();
+                        }
+                    }
+                });
+            });
+            
+            // Add to cart functionality for recommended products
+            $('.add-to-cart-btn').on('click', function(e) {
+                e.preventDefault();
+                var productId = $(this).data('product-id');
+                
+                $.ajax({
+                    url: '{% url "add_to_cart" 0 %}'.replace('0', productId),
+                    type: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(data) {
+                        if (data.status === 'success') {
+                            // Update cart count in header
+                            $('.cart-qty').text(data.cart_count);
+                            
+                            // Reload cart items in dropdown if loadCartItems function exists
+                            if (typeof loadCartItems === 'function') {
+                                loadCartItems();
+                            }
+                            
+                            // Show success message
+                            alert(data.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Error adding product to cart');
+                    }
+                });
+            });
+            
+            // Add to wishlist functionality
+            $('.add-to-wishlist').on('click', function(e) {
+                e.preventDefault();
+                var productId = $(this).data('product-id');
+                
+                $.ajax({
+                    url: '{% url "add_to_wishlist" 0 %}'.replace('0', productId),
+                    type: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(data) {
+                        if (data.status === 'success') {
+                            // Update wishlist count in header
+                            $('.wishlist-qty').text(data.wishlist_count);
+                            
+                            // Change button appearance
+                            $(e.currentTarget).find('i').removeClass('fa-heart-o').addClass('fa-heart');
+                            $(e.currentTarget).find('.tooltipp').text('added to wishlist');
+                            
+                            // Show success message
+                            alert(data.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Error adding product to wishlist');
+                    }
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .cart-table {
+            margin-bottom: 30px;
+        }
+        .cart-table .table {
+            margin-bottom: 0;
+        }
+        .cart-product {
+            display: flex;
+            align-items: center;
+        }
+        .cart-product img {
+            margin-right: 15px;
+        }
+        .cart-quantity .input-group {
+            width: 120px;
+        }
+        .cart-quantity .form-control {
+            text-align: center;
+        }
+        .cart-summary {
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .cart-summary h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e4e7ed;
+        }
+        .cart-summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .cart-summary-item.total {
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e4e7ed;
+        }
+        .cart-btns {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .cart-btns .primary-btn {
+            margin-bottom: 10px;
+        }
+        .cart-coupon {
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+        .cart-coupon h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .cart-coupon form {
+            display: flex;
+        }
+        .cart-coupon .input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+    </style>
+</body>
+</html> 

@@ -1,0 +1,379 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Dashboard{% endblock %}
+
+{% block breadcrumb %}
+    <span><a href="{% url 'dashboard:home' %}">Dashboard</a></span> / 
+    <span><a href="{% url 'dashboard:blog_list' %}">Blog Posts</a></span> / 
+    <span>{{ title }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="blog-form">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">{{ title }}</h2>
+        <a href="{% url 'dashboard:blog_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Blog Posts
+        </a>
+    </div>
+    
+    <!-- Form Card -->
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <!-- Error Messages -->
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i> Please correct the errors below:</h5>
+                        <ul class="mb-0">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                
+                <!-- Form Layout -->
+                <div class="row">
+                    <!-- Left Column - Main Blog Post Info -->
+                    <div class="col-md-8">
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">Post Information</h5>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.title.id_for_label }}" class="form-label">Post Title <span class="text-danger">*</span></label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.title.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.slug.id_for_label }}" class="form-label">Slug <small class="text-muted">(URL-friendly name)</small></label>
+                                {{ form.slug }}
+                                <div class="form-text">Leave blank to auto-generate from title.</div>
+                                {% if form.slug.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.slug.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.excerpt.id_for_label }}" class="form-label">Excerpt <small class="text-muted">(optional)</small></label>
+                                {{ form.excerpt }}
+                                <div class="form-text">A short summary of the post for display on blog listings (150-200 characters).</div>
+                                {% if form.excerpt.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.excerpt.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.content.id_for_label }}" class="form-label">Content <span class="text-danger">*</span></label>
+                                {{ form.content }}
+                                {% if form.content.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.content.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">SEO Information</h5>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.meta_title.id_for_label }}" class="form-label">Meta Title <small class="text-muted">(optional)</small></label>
+                                {{ form.meta_title }}
+                                <div class="form-text">Title tag for SEO purposes. Leave blank to use post title.</div>
+                                {% if form.meta_title.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.meta_title.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.meta_description.id_for_label }}" class="form-label">Meta Description <small class="text-muted">(optional)</small></label>
+                                {{ form.meta_description }}
+                                <div class="form-text">Description for search engines. Recommended length: 150-160 characters.</div>
+                                {% if form.meta_description.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.meta_description.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column - Image, Categories, Tags, and Publish Settings -->
+                    <div class="col-md-4">
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">Featured Image</h5>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.featured_image.id_for_label }}" class="form-label">Featured Image <small class="text-muted">(recommended)</small></label>
+                                {% if blog and blog.featured_image %}
+                                    <div class="mb-3">
+                                        <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}" class="img-thumbnail" style="max-height: 150px;">
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="remove_featured_image" id="remove_featured_image">
+                                        <label class="form-check-label" for="remove_featured_image">
+                                            Remove current image
+                                        </label>
+                                    </div>
+                                {% endif %}
+                                {{ form.featured_image }}
+                                <div class="form-text">Recommended size: 1200 x 630 pixels.</div>
+                                {% if form.featured_image.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.featured_image.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">Categories & Tags</h5>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.category.id_for_label }}" class="form-label">Category <span class="text-danger">*</span></label>
+                                {{ form.category }}
+                                {% if form.category.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.category.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.tags.id_for_label }}" class="form-label">Tags <small class="text-muted">(optional)</small></label>
+                                {{ form.tags }}
+                                <div class="form-text">Select existing tags or type new ones and press Enter.</div>
+                                {% if form.tags.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.tags.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">Publication Settings</h5>
+                            
+                            <div class="form-check mb-3">
+                                {{ form.is_published }}
+                                <label class="form-check-label" for="{{ form.is_published.id_for_label }}">
+                                    Publish immediately
+                                </label>
+                                <div class="form-text">If unchecked, this post will be saved as a draft.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.published_at.id_for_label }}" class="form-label">Publication Date</label>
+                                {{ form.published_at }}
+                                <div class="form-text">You can schedule a post by setting a future date.</div>
+                                {% if form.published_at.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.published_at.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                {{ form.allow_comments }}
+                                <label class="form-check-label" for="{{ form.allow_comments.id_for_label }}">
+                                    Allow Comments
+                                </label>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                {{ form.is_featured }}
+                                <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                                    Feature this post
+                                </label>
+                                <div class="form-text">Featured posts appear in highlighted sections of the blog.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">Author Information</h5>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.author.id_for_label }}" class="form-label">Author</label>
+                                {{ form.author }}
+                                {% if form.author.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.author.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form Buttons -->
+                <div class="border-top pt-3 mt-3 d-flex justify-content-end">
+                    <button type="submit" name="save_draft" class="btn btn-secondary me-2">
+                        <i class="fas fa-save me-2"></i> Save as Draft
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i> {% if blog.is_active %}Update{% else %}Publish{% endif %} Post
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize WYSIWYG editor for content
+        const contentField = document.getElementById('{{ form.content.id_for_label }}');
+        if (contentField && typeof $.fn.summernote !== 'undefined') {
+            $(contentField).summernote({
+                height: 300,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onImageUpload: function(files) {
+                        // This would need server-side implementation to handle file uploads
+                        for (let i = 0; i < files.length; i++) {
+                            uploadImage(files[i], this);
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Initialize smaller WYSIWYG editor for excerpt
+        const excerptField = document.getElementById('{{ form.excerpt.id_for_label }}');
+        if (excerptField && typeof $.fn.summernote !== 'undefined') {
+            $(excerptField).summernote({
+                height: 100,
+                toolbar: [
+                    ['font', ['bold', 'underline', 'italic', 'clear']],
+                    ['para', ['paragraph']],
+                    ['view', ['fullscreen']]
+                ],
+                placeholder: 'Write a brief summary of your post...'
+            });
+        }
+        
+        // Handle auto-generation of slug from title
+        const titleField = document.getElementById('{{ form.title.id_for_label }}');
+        const slugField = document.getElementById('{{ form.slug.id_for_label }}');
+        
+        if (titleField && slugField) {
+            titleField.addEventListener('keyup', function() {
+                // Only update slug if it's empty or hasn't been manually changed
+                if (slugField.value === '' || slugField.dataset.autoGenerated === 'true') {
+                    const slug = slugify(this.value);
+                    slugField.value = slug;
+                    slugField.dataset.autoGenerated = 'true';
+                }
+            });
+            
+            // Mark slug as manually changed when user edits it
+            slugField.addEventListener('input', function() {
+                this.dataset.autoGenerated = 'false';
+            });
+        }
+        
+        // Initialize select2 for tags if available
+        const tagsField = document.getElementById('{{ form.tags.id_for_label }}');
+        if (tagsField && typeof $.fn.select2 !== 'undefined') {
+            $(tagsField).select2({
+                tags: true,
+                tokenSeparators: [','],
+                placeholder: 'Select or create tags...',
+                allowClear: true,
+                theme: 'bootstrap-5'
+            });
+        }
+        
+        // Initialize datepicker for published_at if available
+        const publishDateField = document.getElementById('{{ form.published_at.id_for_label }}');
+        if (publishDateField && typeof $.fn.flatpickr !== 'undefined') {
+            $(publishDateField).flatpickr({
+                enableTime: true,
+                dateFormat: 'Y-m-d H:i',
+                time_24hr: true
+            });
+        }
+        
+        // Image upload for WYSIWYG editor
+        function uploadImage(file, editor) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            
+            fetch('/dashboard/api/upload-image/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.location) {
+                    $(editor).summernote('insertImage', data.location, function($image) {
+                        $image.css('max-width', '100%');
+                    });
+                } else {
+                    console.error('Upload failed:', data.error);
+                    alert('Image upload failed: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Image upload failed. Please try again.');
+            });
+        }
+        
+        // Featured image preview
+        const imageInput = document.getElementById('{{ form.featured_image.id_for_label }}');
+        if (imageInput) {
+            imageInput.addEventListener('change', function() {
+                previewImage(this, 'preview-featured-image');
+            });
+        }
+        
+        // Image preview function
+        function previewImage(input, previewId) {
+            // Check if there's an existing preview, if not create one
+            let preview = document.getElementById(previewId);
+            if (!preview) {
+                preview = document.createElement('div');
+                preview.id = previewId;
+                preview.className = 'mt-2';
+                input.parentNode.insertBefore(preview, input.nextSibling);
+            }
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" class="img-thumbnail" style="max-height: 150px;">`;
+                };
+                
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.innerHTML = '';
+            }
+        }
+        
+        // Slug generation helper function
+        function slugify(text) {
+            return text.toString().toLowerCase()
+                .replace(/\s+/g, '-')           // Replace spaces with -
+                .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+                .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+                .replace(/^-+/, '')             // Trim - from start of text
+                .replace(/-+$/, '');            // Trim - from end of text
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,123 @@
+/* Mobile-specific styles - Only applied on smaller screens */
+
+/* Hide top header on mobile */
+@media only screen and (max-width: 767px) {
+    #top-header {
+        display: none !important;
+    }
+    
+    /* Make main header thinner and fixed at top */
+    #header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: white;
+        padding: 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    /* Adjust header logo area */
+    .header-logo {
+        padding: 8px 0 !important;
+    }
+    
+    .header-logo img {
+        max-height: 40px !important;
+        width: auto;
+    }
+    
+    /* Hide desktop search initially */
+    #header-search {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 999;
+        background: white;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    #header-search.active {
+        display: block;
+    }
+    
+    /* Adjust mobile header icons row */
+    .mobile-icons-row {
+        padding: 0;
+        justify-content: space-between !important;
+        background-color: transparent !important;
+    }
+    
+    .mobile-icons-row > div {
+        padding: 0 15px;
+    }
+    
+    .mobile-icons-row a {
+        color: #333;
+        font-size: 20px;
+    }
+    
+    /* Create fixed bottom navigation for mobile */
+    .mobile-footer-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        height: 56px;
+    }
+    
+    .mobile-footer-nav .nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 0;
+        color: #333;
+        text-decoration: none;
+    }
+    
+    .mobile-footer-nav .nav-item i {
+        font-size: 20px;
+        margin-bottom: 2px;
+    }
+    
+    .mobile-footer-nav .nav-item span {
+        font-size: 10px;
+        text-align: center;
+    }
+    
+    .mobile-footer-nav .nav-item.active {
+        color: #D10024;
+    }
+    
+    /* Add padding to body to account for fixed header and footer */
+    body {
+        padding-top: 60px;
+        padding-bottom: 56px;
+    }
+    
+    /* Adjust navigation for mobile */
+    #navigation {
+        top: 60px;
+        position: relative;
+    }
+    
+    #responsive-nav {
+        max-height: calc(100vh - 116px);
+        overflow-y: auto;
+    }
+    
+    /* Hide desktop menu toggle */
+    .header-ctn .menu-toggle {
+        display: none !important;
+    }
+} 

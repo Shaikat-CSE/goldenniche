@@ -1,0 +1,283 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Golden Niche BD - Dashboard{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon-32x32.png' %}">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="{% static 'dashboard/css/dashboard.css' %}">
+    <!-- Datatables Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <!-- Summernote WYSIWYG editor -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="{% url 'dashboard:home' %}" class="logo">
+                    <span class="logo-icon"><i class="fas fa-store"></i></span>
+                    <span class="logo-text">Golden Niche</span>
+                </a>
+                <button id="sidebar-toggle" class="d-md-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <a href="{% url 'dashboard:home' %}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="{% if 'product' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'dashboard:product_list' %}">
+                            <i class="fas fa-box"></i> Products
+                        </a>
+                    </li>
+                    <li class="{% if 'category' in request.resolver_match.url_name and 'blog' not in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'dashboard:category_list' %}">
+                            <i class="fas fa-tags"></i> Categories
+                        </a>
+                    </li>
+                    <li class="{% if 'subcategory' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'dashboard:subcategory_list' %}">
+                            <i class="fas fa-tag"></i> Subcategories
+                        </a>
+                    </li>
+                    <li class="{% if 'blog' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="#" class="dropdown-toggle">
+                            <i class="fas fa-blog"></i> Blog <i class="fas fa-chevron-down float-end"></i>
+                        </a>
+                        <ul class="sidebar-dropdown">
+                            <li>
+                                <a href="{% url 'dashboard:blog_list' %}">
+                                    <i class="fas fa-file-alt"></i> Blog Posts
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'dashboard:blog_category_list' %}">
+                                    <i class="fas fa-list"></i> Blog Categories
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="{% if 'testimonial' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'dashboard:testimonial_list' %}">
+                            <i class="fas fa-quote-left"></i> Testimonials
+                        </a>
+                    </li>
+                    <li class="{% if 'return-request' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'dashboard:return_request_list' %}">
+                            <i class="fas fa-exchange-alt"></i> Return Requests
+                        </a>
+                    </li>
+                    <li class="{% if 'user' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'dashboard:user_list' %}">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                    </li>
+                    <li class="{% if 'activity' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'dashboard:activity_list' %}">
+                            <i class="fas fa-chart-line"></i> Activity Logs
+                        </a>
+                    </li>
+                    <li class="{% if 'order' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="#" class="dropdown-toggle">
+                            <i class="fas fa-shopping-bag"></i> Orders <i class="fas fa-chevron-down float-end"></i>
+                        </a>
+                        <ul class="sidebar-dropdown">
+                            <li>
+                                <a href="{% url 'dashboard:order_list' %}">
+                                    <i class="fas fa-list"></i> All Orders
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'dashboard:order_list' %}?status=pending">
+                                    <i class="fas fa-clock"></i> Pending Orders
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'dashboard:order_list' %}?status=processing">
+                                    <i class="fas fa-spinner"></i> Processing Orders
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'dashboard:order_list' %}?status=shipped">
+                                    <i class="fas fa-truck"></i> Shipped Orders
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'dashboard:order_list' %}?status=delivered">
+                                    <i class="fas fa-check-circle"></i> Delivered Orders
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'dashboard:order_list' %}?status=cancelled">
+                                    <i class="fas fa-times-circle"></i> Cancelled Orders
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="{% if 'setting' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'dashboard:settings' %}">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'dashboard:logout' %}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="topbar-breadcrumb">
+                        {% block breadcrumb %}
+                            <span>Dashboard</span>
+                        {% endblock %}
+                    </div>
+                    <div class="topbar-actions d-flex">
+                        <!-- Search -->
+                        <div class="search-form me-3">
+                            <input type="text" placeholder="Search...">
+                            <button type="button"><i class="fas fa-search"></i></button>
+                        </div>
+                        
+                        <!-- Notifications -->
+                        <div class="dropdown me-3">
+                            <button class="btn notification-btn" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-bell"></i>
+                                {% if unread_notifications_count > 0 %}
+                                    <span class="badge rounded-pill bg-danger">{{ unread_notifications_count }}</span>
+                                {% endif %}
+                            </button>
+                            <div class="dropdown-menu notification-dropdown" aria-labelledby="notificationDropdown">
+                                <div class="notification-header">
+                                    <h6 class="dropdown-header">Notifications</h6>
+                                    {% if unread_notifications_count > 0 %}
+                                        <a href="{% url 'dashboard:mark_all_notifications_read' %}" class="btn btn-sm btn-link">Mark all as read</a>
+                                    {% endif %}
+                                </div>
+                                <div class="notification-body">
+                                    {% if dashboard_notifications %}
+                                        {% for notification in dashboard_notifications %}
+                                            <a href="{% if notification.link %}{{ notification.link }}{% else %}#{% endif %}" class="dropdown-item notification-item">
+                                                <div class="notification-icon notification-{{ notification.level }}">
+                                                    <i class="fas fa-{% if notification.level == 'info' %}info-circle{% elif notification.level == 'success' %}check-circle{% elif notification.level == 'warning' %}exclamation-triangle{% elif notification.level == 'error' %}times-circle{% endif %}"></i>
+                                                </div>
+                                                <div class="notification-content">
+                                                    <h6>{{ notification.title }}</h6>
+                                                    <p>{{ notification.message|truncatechars:50 }}</p>
+                                                    <small>{{ notification.created_at|timesince }} ago</small>
+                                                </div>
+                                            </a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="dropdown-item text-center">
+                                            <p>No new notifications</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="notification-footer">
+                                    <a href="{% url 'dashboard:notification_list' %}" class="dropdown-item text-center">
+                                        View all notifications
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- User Menu -->
+                        <div class="dropdown">
+                            <button class="btn user-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar">
+                                    {% if request.user.profile.avatar %}
+                                        <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.get_full_name }}">
+                                    {% else %}
+                                        <span>{{ request.user.first_name|first }}{{ request.user.last_name|first }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="user-info d-none d-md-block">
+                                    <span class="user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                                    <span class="user-role">Administrator</span>
+                                </div>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'dashboard:settings' %}"><i class="fas fa-cog"></i> Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'dashboard:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-wrapper">
+                <!-- Flash Messages -->
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- Main Content -->
+                <div class="content">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+            
+            <footer class="footer">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>&copy; {% now "Y" %} Golden Niche BD | Admin Dashboard</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <p>Version 1.0.0</p>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap 5 Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Summernote WYSIWYG editor -->
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.js"></script>
+    <!-- Dashboard JS -->
+    <script src="{% static 'dashboard/js/dashboard.js' %}"></script>
+    
+    <!-- Custom JS -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

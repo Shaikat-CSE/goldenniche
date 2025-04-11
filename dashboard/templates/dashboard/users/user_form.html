@@ -1,0 +1,370 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Dashboard{% endblock %}
+
+{% block breadcrumb %}
+    <span><a href="{% url 'dashboard:home' %}">Dashboard</a></span> / 
+    <span><a href="{% url 'dashboard:user_list' %}">Users</a></span> / 
+    <span>{{ title }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="user-form">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">{{ title }}</h2>
+        <a href="{% url 'dashboard:user_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Users
+        </a>
+    </div>
+    
+    <!-- Form Card -->
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <h5 class="alert-heading">Please fix the following errors:</h5>
+                        <ul class="mb-0">
+                            {% for field in form %}
+                                {% if field.errors %}
+                                    {% for error in field.errors %}
+                                        <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if form.non_field_errors %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
+                    </div>
+                {% endif %}
+                
+                <!-- Form Content -->
+                <div class="row">
+                    <!-- Left Column - Basic Info -->
+                    <div class="col-md-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Basic Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.username.id_for_label }}" class="form-label">Username <span class="text-danger">*</span></label>
+                                        <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control {% if form.username.errors %}is-invalid{% endif %}" value="{{ form.username.value|default:'' }}" required>
+                                        {% if form.username.errors %}
+                                            <div class="invalid-feedback">{{ form.username.errors.0 }}</div>
+                                        {% endif %}
+                                        <div class="form-text">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.email.id_for_label }}" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                        <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control {% if form.email.errors %}is-invalid{% endif %}" value="{{ form.email.value|default:'' }}" required>
+                                        {% if form.email.errors %}
+                                            <div class="invalid-feedback">{{ form.email.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                        <input type="text" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" value="{{ form.first_name.value|default:'' }}">
+                                        {% if form.first_name.errors %}
+                                            <div class="invalid-feedback">{{ form.first_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                        <input type="text" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" value="{{ form.last_name.value|default:'' }}">
+                                        {% if form.last_name.errors %}
+                                            <div class="invalid-feedback">{{ form.last_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Password fields (only shown if creating a new user) -->
+                                {% if not object %}
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.password1.id_for_label }}" class="form-label">Password <span class="text-danger">*</span></label>
+                                            <input type="password" name="{{ form.password1.name }}" id="{{ form.password1.id_for_label }}" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" required>
+                                            {% if form.password1.errors %}
+                                                <div class="invalid-feedback">{{ form.password1.errors.0 }}</div>
+                                            {% endif %}
+                                            <div class="form-text">Password must contain at least 8 characters, including letters and numbers.</div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                            <input type="password" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" required>
+                                            {% if form.password2.errors %}
+                                                <div class="invalid-feedback">{{ form.password2.errors.0 }}</div>
+                                            {% endif %}
+                                            <div class="form-text">Enter the same password as before, for verification.</div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Contact Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Contact Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ profile_form.phone.id_for_label }}" class="form-label">Phone Number</label>
+                                        <input type="tel" name="{{ profile_form.phone.name }}" id="{{ profile_form.phone.id_for_label }}" class="form-control {% if profile_form.phone.errors %}is-invalid{% endif %}" value="{{ profile_form.phone.value|default:'' }}">
+                                        {% if profile_form.phone.errors %}
+                                            <div class="invalid-feedback">{{ profile_form.phone.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ profile_form.address.id_for_label }}" class="form-label">Address</label>
+                                        <input type="text" name="{{ profile_form.address.name }}" id="{{ profile_form.address.id_for_label }}" class="form-control {% if profile_form.address.errors %}is-invalid{% endif %}" value="{{ profile_form.address.value|default:'' }}">
+                                        {% if profile_form.address.errors %}
+                                            <div class="invalid-feedback">{{ profile_form.address.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ profile_form.city.id_for_label }}" class="form-label">City</label>
+                                        <input type="text" name="{{ profile_form.city.name }}" id="{{ profile_form.city.id_for_label }}" class="form-control {% if profile_form.city.errors %}is-invalid{% endif %}" value="{{ profile_form.city.value|default:'' }}">
+                                        {% if profile_form.city.errors %}
+                                            <div class="invalid-feedback">{{ profile_form.city.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ profile_form.state.id_for_label }}" class="form-label">State/Province</label>
+                                        <input type="text" name="{{ profile_form.state.name }}" id="{{ profile_form.state.id_for_label }}" class="form-control {% if profile_form.state.errors %}is-invalid{% endif %}" value="{{ profile_form.state.value|default:'' }}">
+                                        {% if profile_form.state.errors %}
+                                            <div class="invalid-feedback">{{ profile_form.state.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ profile_form.zip_code.id_for_label }}" class="form-label">ZIP / Postal Code</label>
+                                        <input type="text" name="{{ profile_form.zip_code.name }}" id="{{ profile_form.zip_code.id_for_label }}" class="form-control {% if profile_form.zip_code.errors %}is-invalid{% endif %}" value="{{ profile_form.zip_code.value|default:'' }}">
+                                        {% if profile_form.zip_code.errors %}
+                                            <div class="invalid-feedback">{{ profile_form.zip_code.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ profile_form.country.id_for_label }}" class="form-label">Country</label>
+                                    <select name="{{ profile_form.country.name }}" id="{{ profile_form.country.id_for_label }}" class="form-select {% if profile_form.country.errors %}is-invalid{% endif %}">
+                                        <option value="">-- Select Country --</option>
+                                        {% for value, label in profile_form.country.field.choices %}
+                                            <option value="{{ value }}" {% if profile_form.country.value == value %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if profile_form.country.errors %}
+                                        <div class="invalid-feedback">{{ profile_form.country.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column - Settings & Avatar -->
+                    <div class="col-md-4">
+                        <!-- User Avatar -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Profile Picture</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="avatar-preview mb-3">
+                                    {% if profile_form.avatar.value %}
+                                        <img src="{{ profile_form.avatar.value.url }}" id="avatar-preview" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="user-icon-placeholder rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto" style="width: 150px; height: 150px; font-size: 3rem;">
+                                            {% if form.first_name.value %}
+                                                {{ form.first_name.value|first|upper }}{% if form.last_name.value %}{{ form.last_name.value|first|upper }}{% endif %}
+                                            {% elif object %}
+                                                {{ object.username|first|upper }}
+                                            {% else %}
+                                                <i class="fas fa-user"></i>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ profile_form.avatar.id_for_label }}" class="form-label d-block">Select Profile Picture</label>
+                                    <input type="file" name="{{ profile_form.avatar.name }}" id="{{ profile_form.avatar.id_for_label }}" class="form-control {% if profile_form.avatar.errors %}is-invalid{% endif %}" accept="image/*">
+                                    {% if profile_form.avatar.errors %}
+                                        <div class="invalid-feedback">{{ profile_form.avatar.errors.0 }}</div>
+                                    {% endif %}
+                                    <div class="form-text">Max file size: 5MB. Recommended size: 500x500 pixels.</div>
+                                </div>
+                                
+                                {% if profile_form.avatar.value %}
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="clear_avatar" name="{{ profile_form.avatar.name }}-clear">
+                                        <label class="form-check-label" for="clear_avatar">
+                                            Remove current profile picture
+                                        </label>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- User Permissions -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Permissions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">User Role</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="{{ form.is_staff.id_for_label }}" name="{{ form.is_staff.name }}" {% if form.is_staff.value %}checked{% endif %}>
+                                        <label class="form-check-label" for="{{ form.is_staff.id_for_label }}">
+                                            Staff Status
+                                        </label>
+                                        <div class="form-text">Staff members can access the dashboard.</div>
+                                    </div>
+                                    
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="{{ form.is_superuser.id_for_label }}" name="{{ form.is_superuser.name }}" {% if form.is_superuser.value %}checked{% endif %}>
+                                        <label class="form-check-label" for="{{ form.is_superuser.id_for_label }}">
+                                            Admin Status
+                                        </label>
+                                        <div class="form-text">Admins have full access to all features.</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="{{ form.is_active.id_for_label }}" name="{{ form.is_active.name }}" {% if form.is_active.value %}checked{% endif %} {% if not form.is_active.value and not form.is_active.value == None %}{% endif %}>
+                                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                            Active
+                                        </label>
+                                        <div class="form-text">Inactive users cannot log in.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Additional Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="{{ profile_form.bio.id_for_label }}" class="form-label">Bio</label>
+                                    <textarea name="{{ profile_form.bio.name }}" id="{{ profile_form.bio.id_for_label }}" class="form-control {% if profile_form.bio.errors %}is-invalid{% endif %}" rows="3">{{ profile_form.bio.value|default:'' }}</textarea>
+                                    {% if profile_form.bio.errors %}
+                                        <div class="invalid-feedback">{{ profile_form.bio.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ profile_form.date_of_birth.id_for_label }}" class="form-label">Date of Birth</label>
+                                    <input type="date" name="{{ profile_form.date_of_birth.name }}" id="{{ profile_form.date_of_birth.id_for_label }}" class="form-control {% if profile_form.date_of_birth.errors %}is-invalid{% endif %}" value="{{ profile_form.date_of_birth.value|date:'Y-m-d'|default:'' }}">
+                                    {% if profile_form.date_of_birth.errors %}
+                                        <div class="invalid-feedback">{{ profile_form.date_of_birth.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="d-flex justify-content-end border-top pt-4 mt-2">
+                    <a href="{% url 'dashboard:user_list' %}" class="btn btn-outline-secondary me-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i> Save User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Preview image before upload
+        const avatarInput = document.getElementById('{{ profile_form.avatar.id_for_label }}');
+        const avatarPreview = document.getElementById('avatar-preview');
+        const avatarPlaceholder = document.querySelector('.user-icon-placeholder');
+        
+        if (avatarInput) {
+            avatarInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        if (avatarPreview) {
+                            avatarPreview.src = e.target.result;
+                            avatarPreview.style.display = 'block';
+                            if (avatarPlaceholder) {
+                                avatarPlaceholder.style.display = 'none';
+                            }
+                        } else {
+                            // Create preview element if it doesn't exist
+                            const newPreview = document.createElement('img');
+                            newPreview.id = 'avatar-preview';
+                            newPreview.src = e.target.result;
+                            newPreview.className = 'img-thumbnail rounded-circle';
+                            newPreview.style.width = '150px';
+                            newPreview.style.height = '150px';
+                            newPreview.style.objectFit = 'cover';
+                            
+                            if (avatarPlaceholder) {
+                                avatarPlaceholder.style.display = 'none';
+                                avatarPlaceholder.parentNode.insertBefore(newPreview, avatarPlaceholder);
+                            }
+                        }
+                    };
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+        
+        // Handle clear avatar checkbox
+        const clearAvatarCheckbox = document.getElementById('clear_avatar');
+        if (clearAvatarCheckbox) {
+            clearAvatarCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    if (avatarPreview) {
+                        avatarPreview.style.display = 'none';
+                    }
+                    if (avatarPlaceholder) {
+                        avatarPlaceholder.style.display = 'flex';
+                    }
+                } else {
+                    if (avatarPreview) {
+                        avatarPreview.style.display = 'block';
+                    }
+                    if (avatarPlaceholder) {
+                        avatarPlaceholder.style.display = 'none';
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,188 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+		<title>Edit Address - Golden Niche</title>
+
+		<!-- Favicon -->
+		<link rel="icon" type="image/png" href="{% static 'img/favicon-32x32.png' %}">
+		<link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
+
+		<!-- Google font -->
+		<link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
+
+		<!-- Bootstrap -->
+		<link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+
+		<!-- Slick -->
+		<link type="text/css" rel="stylesheet" href="{% static 'css/slick.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/slick-theme.css' %}"/>
+
+		<!-- nouislider -->
+		<link type="text/css" rel="stylesheet" href="{% static 'css/nouislider.min.css' %}"/>
+
+		<!-- Font Awesome Icon -->
+		<link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+
+		<!-- Custom stlylesheet -->
+		<link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}"/>
+
+    </head>
+	<body>
+		{% include 'store/header.html' %}
+
+		<!-- BREADCRUMB -->
+		<div id="breadcrumb" class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-12">
+						<h3 class="breadcrumb-header">Edit Address</h3>
+						<ul class="breadcrumb-tree">
+							<li><a href="{% url 'home' %}">Home</a></li>
+							<li><a href="{% url 'my_account' %}">My Account</a></li>
+							<li class="active">Edit Address</li>
+						</ul>
+					</div>
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /BREADCRUMB -->
+
+		<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-6 mx-auto">
+						<div class="card">
+							<div class="card-header">
+								<h4>Edit Address</h4>
+							</div>
+							<div class="card-body">
+								{% if messages %}
+									<div class="messages">
+										{% for message in messages %}
+											<div class="alert alert-{{ message.tags }}">
+												{{ message }}
+											</div>
+										{% endfor %}
+									</div>
+								{% endif %}
+								
+								<form method="post" action="{% url 'edit_address' address.id %}">
+									{% csrf_token %}
+									
+									<div class="form-group">
+										<label for="id_address_line1">Address Line 1</label>
+										{{ form.address_line1 }}
+										{% if form.address_line1.errors %}
+											<div class="text-danger">
+												{% for error in form.address_line1.errors %}
+													{{ error }}
+												{% endfor %}
+											</div>
+										{% endif %}
+									</div>
+									
+									<div class="form-group">
+										<label for="id_address_line2">Address Line 2 (Optional)</label>
+										{{ form.address_line2 }}
+										{% if form.address_line2.errors %}
+											<div class="text-danger">
+												{% for error in form.address_line2.errors %}
+													{{ error }}
+												{% endfor %}
+											</div>
+										{% endif %}
+									</div>
+									
+									<div class="form-group">
+										<label for="id_city">City</label>
+										{{ form.city }}
+										{% if form.city.errors %}
+											<div class="text-danger">
+												{% for error in form.city.errors %}
+													{{ error }}
+												{% endfor %}
+											</div>
+										{% endif %}
+									</div>
+									
+									<div class="form-group">
+										<label for="id_state">State/Division</label>
+										{{ form.state }}
+										{% if form.state.errors %}
+											<div class="text-danger">
+												{% for error in form.state.errors %}
+													{{ error }}
+												{% endfor %}
+											</div>
+										{% endif %}
+									</div>
+									
+									<div class="form-group">
+										<label for="id_postal_code">Postal Code</label>
+										{{ form.postal_code }}
+										{% if form.postal_code.errors %}
+											<div class="text-danger">
+												{% for error in form.postal_code.errors %}
+													{{ error }}
+												{% endfor %}
+											</div>
+										{% endif %}
+									</div>
+									
+									<div class="form-group">
+										<label for="id_phone">Phone Number</label>
+										{{ form.phone }}
+										{% if form.phone.errors %}
+											<div class="text-danger">
+												{% for error in form.phone.errors %}
+													{{ error }}
+												{% endfor %}
+											</div>
+										{% endif %}
+									</div>
+									
+									<div class="form-group form-check">
+										{{ form.is_default }}
+										<label class="form-check-label" for="id_is_default">Set as default address</label>
+									</div>
+									
+									<div class="form-group">
+										<button type="submit" class="primary-btn order-submit">Save Address</button>
+										<a href="{% url 'my_account' %}" class="btn btn-secondary">Cancel</a>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
+
+		{% include 'store/footer.html' %}
+
+		<!-- jQuery Plugins -->
+		<script src="{% static 'js/jquery.min.js' %}"></script>
+		<script src="{% static 'js/bootstrap.min.js' %}"></script>
+		<script src="{% static 'js/slick.min.js' %}"></script>
+		<script src="{% static 'js/nouislider.min.js' %}"></script>
+		<script src="{% static 'js/jquery.zoom.min.js' %}"></script>
+		<script src="{% static 'js/main.js' %}"></script>
+
+	</body>
+</html> 

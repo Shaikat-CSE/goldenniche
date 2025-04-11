@@ -1,0 +1,22 @@
+{% if products.has_other_pages %}
+<span class="store-qty">Showing {{ products|length }} products</span>
+<ul class="store-pagination">
+    {% if products.has_previous %}
+    <li><a href="javascript:void(0);" data-page="1" class="pagination-link"><i class="fa fa-angle-double-left"></i></a></li>
+    <li><a href="javascript:void(0);" data-page="{{ products.previous_page_number }}" class="pagination-link"><i class="fa fa-angle-left"></i></a></li>
+    {% endif %}
+    
+    {% for num in products.paginator.page_range %}
+        {% if products.number == num %}
+        <li class="active">{{ num }}</li>
+        {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+        <li><a href="javascript:void(0);" data-page="{{ num }}" class="pagination-link">{{ num }}</a></li>
+        {% endif %}
+    {% endfor %}
+    
+    {% if products.has_next %}
+    <li><a href="javascript:void(0);" data-page="{{ products.next_page_number }}" class="pagination-link"><i class="fa fa-angle-right"></i></a></li>
+    <li><a href="javascript:void(0);" data-page="{{ products.paginator.num_pages }}" class="pagination-link"><i class="fa fa-angle-double-right"></i></a></li>
+    {% endif %}
+</ul>
+{% endif %} 

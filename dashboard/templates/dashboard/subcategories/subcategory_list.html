@@ -1,0 +1,250 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load dashboard_filters %}
+
+{% block title %}Subcategories - Dashboard{% endblock %}
+
+{% block breadcrumb %}
+    <span><a href="{% url 'dashboard:home' %}">Dashboard</a></span> / 
+    <span><a href="{% url 'dashboard:category_list' %}">Categories</a></span> / 
+    <span>Subcategories</span>
+{% endblock %}
+
+{% block content %}
+<div class="subcategory-list">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Subcategories</h2>
+        <a href="{% url 'dashboard:subcategory_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i> Add New Subcategory
+        </a>
+    </div>
+    
+    <!-- Alerts for messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Main Card -->
+    <div class="card">
+        <div class="card-body">
+            <!-- Search and Filter -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <form method="get" class="d-flex">
+                        <div class="input-group me-2">
+                            <input type="text" name="search" class="form-control" placeholder="Search subcategories..." value="{{ request.GET.search|default:'' }}">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        
+                        {% if categories %}
+                            <select name="category" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Categories</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}" {% if request.GET.category|add:"0" == cat.id %}selected{% endif %}>
+                                        {{ cat.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        {% endif %}
+                    </form>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <span class="text-muted">Total Subcategories: <strong>{{ subcategories.count }}</strong></span>
+                </div>
+            </div>
+            
+            <!-- Subcategories Table -->
+            {% if subcategories %}
+                <div class="table-responsive">
+                    <table id="subcategoryTable" class="datatable">
+                        <thead>
+                            <tr>
+                                <th width="70">Image</th>
+                                <th>Name</th>
+                                <th>Parent Category</th>
+                                <th>Slug</th>
+                                <th>Products</th>
+                                <th>Status</th>
+                                <th width="120">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for subcategory in subcategories %}
+                                <tr>
+                                    <td>
+                                        {% if subcategory.image %}
+                                            <img src="{{ subcategory.image.url }}" alt="{{ subcategory.name }}" class="img-thumbnail" width="50">
+                                        {% else %}
+                                            <div class="text-center text-muted">
+                                                <i class="fas fa-image fa-2x"></i>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ subcategory.name }}</td>
+                                    <td>
+                                        <a href="{% url 'dashboard:category_edit' subcategory.category.id %}" class="text-decoration-none">
+                                            {{ subcategory.category.name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ subcategory.slug }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ subcategory.products.count }}</span>
+                                        {% if subcategory.products.count > 0 %}
+                                            <a href="{% url 'dashboard:product_list' %}?subcategory={{ subcategory.id }}" class="ms-2 text-decoration-none">
+                                                <small>View</small>
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if subcategory.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'dashboard:subcategory_edit' subcategory.id %}" class="btn btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ subcategory.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Delete Confirmation Modal -->
+                                        <div class="modal fade" id="deleteModal{{ subcategory.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ subcategory.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="deleteModalLabel{{ subcategory.id }}">Confirm Delete</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete <strong>{{ subcategory.name }}</strong>?</p>
+                                                        {% if subcategory.products.count > 0 %}
+                                                            <div class="alert alert-warning">
+                                                                <i class="fas fa-exclamation-triangle me-2"></i> This subcategory has {{ subcategory.products.count }} products. Deleting it will affect these products.
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form method="post" action="{% url 'dashboard:subcategory_delete' subcategory.id %}">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if subcategories.has_other_pages %}
+                    <nav aria-label="Subcategories pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if subcategories.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" aria-label="First">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ subcategories.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;&laquo;</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;</span>
+                                </li>
+                            {% endif %}
+                            
+                            {% for i in subcategories.paginator.page_range %}
+                                {% if subcategories.number == i %}
+                                    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                                {% elif i > subcategories.number|add:'-3' and i < subcategories.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ i }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">{{ i }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if subcategories.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ subcategories.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ subcategories.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;&raquo;</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+                
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-folder-open fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted">No Subcategories Found</h4>
+                    {% if request.GET.search or request.GET.category %}
+                        <p class="text-muted">
+                            {% if request.GET.search %}
+                                No subcategories match your search criteria: <strong>"{{ request.GET.search }}"</strong>
+                            {% endif %}
+                            {% if request.GET.category %}
+                                {% with selected_category=categories|filter_by_id:request.GET.category|first %}
+                                    {% if selected_category %}
+                                        No subcategories found in <strong>{{ selected_category.name }}</strong> category
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'dashboard:subcategory_list' %}" class="btn btn-outline-secondary mt-3">
+                            <i class="fas fa-undo me-2"></i> Clear Filters
+                        </a>
+                    {% else %}
+                        <p class="text-muted">Get started by creating your first subcategory</p>
+                        <a href="{% url 'dashboard:subcategory_create' %}" class="btn btn-primary mt-3">
+                            <i class="fas fa-plus me-2"></i> Add New Subcategory
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- The DataTable initialization is now handled by dashboard.js -->
+{% endblock %} 

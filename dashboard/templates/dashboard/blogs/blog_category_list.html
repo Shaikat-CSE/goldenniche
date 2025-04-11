@@ -1,0 +1,145 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Blog Categories - Dashboard{% endblock %}
+
+{% block breadcrumb %}
+    <span><a href="{% url 'dashboard:home' %}">Dashboard</a></span> / 
+    <span>Blog Categories</span>
+{% endblock %}
+
+{% block content %}
+<div class="blog-category-list">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Blog Categories</h2>
+        <a href="{% url 'dashboard:blog_category_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i> Add New Category
+        </a>
+    </div>
+    
+    <!-- Alerts for messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Main Card -->
+    <div class="card">
+        <div class="card-body">
+            <!-- Search and Filter -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <form method="get" class="d-flex">
+                        <div class="input-group">
+                            <input type="text" name="q" class="form-control" placeholder="Search categories..." value="{{ search_query|default:'' }}">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <span class="text-muted">Total Categories: <strong>{{ categories.count }}</strong></span>
+                </div>
+            </div>
+            
+            <!-- Category Table -->
+            {% if categories %}
+                <div class="table-responsive">
+                    <table id="categoryTable" class="datatable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Slug</th>
+                                <th>Posts Count</th>
+                                <th width="120">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in categories %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'dashboard:blog_category_edit' category.id %}" class="text-decoration-none fw-bold">
+                                            {{ category.name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ category.slug }}</td>
+                                    <td>
+                                        <span class="badge bg-info text-dark">{{ category.blog_set.count }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'dashboard:blog_category_edit' category.id %}" class="btn btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ category.id }}" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Delete Confirmation Modal -->
+                                        <div class="modal fade" id="deleteModal{{ category.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ category.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="deleteModalLabel{{ category.id }}">Confirm Delete</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete the category <strong>{{ category.name }}</strong>?</p>
+                                                        {% if category.blog_set.count > 0 %}
+                                                            <div class="alert alert-warning">
+                                                                <i class="fas fa-exclamation-triangle me-2"></i> This category has {{ category.blog_set.count }} blog posts associated with it. Deleting this category may affect these posts.
+                                                            </div>
+                                                        {% endif %}
+                                                        <p class="text-danger">This action cannot be undone.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form method="post" action="{% url 'dashboard:blog_category_delete' category.id %}">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-tags fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted">No Blog Categories Found</h4>
+                    {% if search_query %}
+                        <p class="text-muted">No categories match your search query: <strong>"{{ search_query }}"</strong></p>
+                        <a href="{% url 'dashboard:blog_category_list' %}" class="btn btn-outline-secondary mt-3">
+                            <i class="fas fa-undo me-2"></i> Clear Search
+                        </a>
+                    {% else %}
+                        <p class="text-muted">Get started by creating your first blog category</p>
+                        <a href="{% url 'dashboard:blog_category_create' %}" class="btn btn-primary mt-3">
+                            <i class="fas fa-plus me-2"></i> Add New Category
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- The DataTable initialization is now handled by dashboard.js -->
+{% endblock %} 

@@ -1,0 +1,44 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}400 - Bad Request - Golden Niche BD{% endblock %}
+
+{% block content %}
+<!-- BREADCRUMB -->
+<div id="breadcrumb" class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">400 - Bad Request</h3>
+                <ul class="breadcrumb-tree">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li class="active">400</li>
+                </ul>
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /BREADCRUMB -->
+
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h2>Bad Request</h2>
+                <p>Sorry, your browser sent a request that this server could not understand.</p>
+                <a href="{% url 'home' %}" class="primary-btn">Go to Homepage</a>
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+{% endblock %} 

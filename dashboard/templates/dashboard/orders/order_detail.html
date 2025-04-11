@@ -1,0 +1,438 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.order_number }} - Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Order Details</h1>
+        <div>
+            <!-- Order Actions Dropdown -->
+            <div class="btn-group mr-2">
+                <button type="button" class="btn btn-primary shadow-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-cogs fa-sm text-white-50 mr-1"></i> Actions
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    {% if order.order_status == 'pending' %}
+                        <a class="dropdown-item" href="{% url 'dashboard:order_status' order.id %}?status_type=order&status=processing">
+                            <i class="fas fa-check-circle text-success mr-2"></i> Approve & Process Order
+                        </a>
+                    {% endif %}
+                    
+                    {% if order.payment_status == 'pending' %}
+                        <a class="dropdown-item" href="{% url 'dashboard:order_status' order.id %}?status_type=payment&status=completed">
+                            <i class="fas fa-money-bill-wave text-success mr-2"></i> Mark Payment as Completed
+                        </a>
+                    {% endif %}
+                    
+                    {% if order.order_status == 'processing' %}
+                        <a class="dropdown-item" href="{% url 'dashboard:order_status' order.id %}?status_type=order&status=shipped">
+                            <i class="fas fa-truck text-info mr-2"></i> Mark as Shipped
+                        </a>
+                    {% endif %}
+                    
+                    {% if order.order_status == 'shipped' %}
+                        <a class="dropdown-item" href="{% url 'dashboard:order_status' order.id %}?status_type=order&status=delivered">
+                            <i class="fas fa-home text-success mr-2"></i> Mark as Delivered
+                        </a>
+                    {% endif %}
+                    
+                    {% if order.order_status != 'cancelled' %}
+                        <a class="dropdown-item" href="{% url 'dashboard:order_status' order.id %}?status_type=order&status=cancelled">
+                            <i class="fas fa-ban text-danger mr-2"></i> Cancel Order
+                        </a>
+                    {% else %}
+                        <a class="dropdown-item" href="{% url 'dashboard:order_status' order.id %}?status_type=order&status=pending">
+                            <i class="fas fa-undo text-warning mr-2"></i> Restore Order to Pending
+                        </a>
+                    {% endif %}
+                    
+                    <div class="dropdown-divider"></div>
+                    
+                    <a class="dropdown-item" href="{% url 'dashboard:order_delete' order.id %}" onclick="return confirm('Are you sure you want to delete this order? This action cannot be undone.')">
+                        <i class="fas fa-trash-alt text-danger mr-2"></i> Delete Order
+                    </a>
+                </div>
+            </div>
+            
+            <a href="{% url 'dashboard:order_invoice' order.id %}" class="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm">
+                <i class="fas fa-file-invoice fa-sm text-white-50"></i> View Invoice
+            </a>
+            <a href="{% url 'dashboard:order_list' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm ml-2">
+                <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Orders
+            </a>
+        </div>
+    </div>
+
+    <!-- Order Status Row -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Order #{{ order.order_number }}</h6>
+                    <span class="ml-auto mr-2">
+                        <i class="fas fa-calendar-alt mr-1"></i> {{ order.created_at|date:"F d, Y" }} at {{ order.created_at|time:"h:i A" }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Order Status -->
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="text-dark">Order Status</h5>
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn dropdown-toggle 
+                                        {% if order.order_status == 'delivered' %}btn-success
+                                        {% elif order.order_status == 'shipped' %}btn-info
+                                        {% elif order.order_status == 'processing' %}btn-primary
+                                        {% elif order.order_status == 'cancelled' %}btn-danger
+                                        {% else %}btn-warning{% endif %}" 
+                                        type="button" id="orderStatusDropdown" data-bs-toggle="dropdown" 
+                                        aria-expanded="false">
+                                        <i class="fas 
+                                            {% if order.order_status == 'delivered' %}fa-check-circle
+                                            {% elif order.order_status == 'shipped' %}fa-truck
+                                            {% elif order.order_status == 'processing' %}fa-spinner
+                                            {% elif order.order_status == 'cancelled' %}fa-times-circle
+                                            {% else %}fa-clock{% endif %} mr-1"></i>
+                                        {{ order.get_order_status_display }}
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="orderStatusDropdown">
+                                        <h6 class="dropdown-header">Change Status:</h6>
+                                        <a class="dropdown-item {% if order.order_status == 'pending' %}active{% endif %}" 
+                                            href="{% url 'dashboard:order_status' order.id %}?status_type=order&status=pending">
+                                            <i class="fas fa-clock mr-1 text-warning"></i> Pending
+                                        </a>
+                                        <a class="dropdown-item {% if order.order_status == 'processing' %}active{% endif %}" 
+                                            href="{% url 'dashboard:order_status' order.id %}?status_type=order&status=processing">
+                                            <i class="fas fa-spinner mr-1 text-primary"></i> Processing
+                                        </a>
+                                        <a class="dropdown-item {% if order.order_status == 'shipped' %}active{% endif %}" 
+                                            href="{% url 'dashboard:order_status' order.id %}?status_type=order&status=shipped">
+                                            <i class="fas fa-truck mr-1 text-info"></i> Shipped
+                                        </a>
+                                        <a class="dropdown-item {% if order.order_status == 'delivered' %}active{% endif %}" 
+                                            href="{% url 'dashboard:order_status' order.id %}?status_type=order&status=delivered">
+                                            <i class="fas fa-check-circle mr-1 text-success"></i> Delivered
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item {% if order.order_status == 'cancelled' %}active{% endif %}" 
+                                            href="{% url 'dashboard:order_status' order.id %}?status_type=order&status=cancelled">
+                                            <i class="fas fa-times-circle mr-1 text-danger"></i> Cancelled
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Status -->
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="text-dark">Payment Status</h5>
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn dropdown-toggle 
+                                        {% if order.payment_status == 'completed' %}btn-success
+                                        {% elif order.payment_status == 'pending' %}btn-warning
+                                        {% elif order.payment_status == 'failed' %}btn-danger
+                                        {% else %}btn-warning{% endif %}" 
+                                        type="button" id="paymentStatusDropdown" data-bs-toggle="dropdown" 
+                                        aria-expanded="false">
+                                        <i class="fas 
+                                            {% if order.payment_status == 'completed' %}fa-check-circle
+                                            {% elif order.payment_status == 'pending' %}fa-clock
+                                            {% elif order.payment_status == 'failed' %}fa-times-circle
+                                            {% else %}fa-question-circle{% endif %} mr-1"></i>
+                                        {{ order.get_payment_status_display }}
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="paymentStatusDropdown">
+                                        <h6 class="dropdown-header">Change Status:</h6>
+                                        <a class="dropdown-item {% if order.payment_status == 'pending' %}active{% endif %}" 
+                                            href="{% url 'dashboard:order_status' order.id %}?status_type=payment&status=pending">
+                                            <i class="fas fa-clock mr-1 text-warning"></i> Pending
+                                        </a>
+                                        <a class="dropdown-item {% if order.payment_status == 'completed' %}active{% endif %}" 
+                                            href="{% url 'dashboard:order_status' order.id %}?status_type=payment&status=completed">
+                                            <i class="fas fa-check-circle mr-1 text-success"></i> Completed
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item {% if order.payment_status == 'failed' %}active{% endif %}" 
+                                            href="{% url 'dashboard:order_status' order.id %}?status_type=payment&status=failed">
+                                            <i class="fas fa-times-circle mr-1 text-danger"></i> Failed
+                                        </a>
+                                    </div>
+                                </div>
+                                <span class="badge badge-pill 
+                                    {% if order.payment_method == 'cash_on_delivery' %}badge-secondary
+                                    {% elif order.payment_method == 'bkash' %}badge-pink
+                                    {% elif order.payment_method == 'card' %}badge-info{% endif %} ml-2">
+                                    {{ order.get_payment_method_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Progress -->
+                    <div class="progress-track mt-3 mb-4">
+                        <ul class="progressbar">
+                            <li class="{% if order.order_status == 'pending' or order.order_status == 'processing' or order.order_status == 'shipped' or order.order_status == 'delivered' %}active{% endif %}">
+                                <i class="fas fa-clipboard-check"></i> Order Placed
+                            </li>
+                            <li class="{% if order.order_status == 'processing' or order.order_status == 'shipped' or order.order_status == 'delivered' %}active{% endif %}">
+                                <i class="fas fa-box"></i> Processing
+                            </li>
+                            <li class="{% if order.order_status == 'shipped' or order.order_status == 'delivered' %}active{% endif %}">
+                                <i class="fas fa-truck"></i> Shipped
+                            </li>
+                            <li class="{% if order.order_status == 'delivered' %}active{% endif %}">
+                                <i class="fas fa-home"></i> Delivered
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Row -->
+    <div class="row">
+        <!-- Customer Information -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Customer Information</h6>
+                </div>
+                <div class="card-body">
+                    {% if order.user %}
+                        <div class="mb-3">
+                            <a href="{% url 'dashboard:user_detail' order.user.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-user mr-1"></i> View Customer Profile
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <p class="mb-1 font-weight-bold">Name:</p>
+                        <p>{{ order.first_name }} {{ order.last_name }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <p class="mb-1 font-weight-bold">Email:</p>
+                        <p>{{ order.email }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <p class="mb-1 font-weight-bold">Phone:</p>
+                        <p>{{ order.phone }}</p>
+                    </div>
+                    
+                    <div class="mb-0">
+                        <p class="mb-1 font-weight-bold">Address:</p>
+                        <p>
+                            {{ order.address }}<br>
+                            {{ order.city }}<br>
+                            {{ order.country }} {{ order.zip_code }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Order Summary</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order_items %}
+                                    <tr>
+                                        <td>
+                                            {% if item.product.image %}
+                                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="product-thumbnail">
+                                            {% endif %}
+                                            {{ item.product.name }}
+                                        </td>
+                                        <td>৳{{ item.price|floatformat:2 }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>৳{{ item.sub_total|floatformat:2 }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-right font-weight-bold">Subtotal:</td>
+                                    <td>৳{{ order.grand_total|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-right font-weight-bold">Shipping:</td>
+                                    <td>৳{{ order.shipping_cost|floatformat:2 }}</td>
+                                </tr>
+                                {% if order.tax > 0 %}
+                                <tr>
+                                    <td colspan="3" class="text-right font-weight-bold">Tax:</td>
+                                    <td>৳{{ order.tax|floatformat:2 }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td colspan="3" class="text-right font-weight-bold">Grand Total:</td>
+                                    <td class="font-weight-bold">৳{{ order.grand_total|floatformat:2 }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notes Row -->
+    <div class="row">
+        <!-- Customer Notes -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Customer Notes</h6>
+                </div>
+                <div class="card-body">
+                    {% if order.notes %}
+                        <p>{{ order.notes }}</p>
+                    {% else %}
+                        <p class="text-muted">No notes provided by customer.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Admin Notes -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Admin Notes</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'dashboard:order_status' order.id %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <textarea name="admin_notes" class="form-control" rows="5" placeholder="Enter internal notes about this order (not visible to customer)">{{ order.admin_notes|default:'' }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save mr-1"></i> Save Notes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Order Progress Bar */
+    .progress-track {
+        margin-top: 1.5rem;
+    }
+    .progressbar {
+        margin: 0;
+        padding: 0;
+        counter-reset: step;
+        display: flex;
+        justify-content: space-between;
+    }
+    .progressbar li {
+        list-style-type: none;
+        width: 25%;
+        float: left;
+        font-size: 12px;
+        position: relative;
+        text-align: center;
+        color: #7d7d7d;
+    }
+    .progressbar li:before {
+        width: 30px;
+        height: 30px;
+        content: '';
+        counter-increment: step;
+        line-height: 30px;
+        border: 2px solid #7d7d7d;
+        display: block;
+        text-align: center;
+        margin: 0 auto 10px auto;
+        border-radius: 50%;
+        background-color: white;
+    }
+    .progressbar li:after {
+        width: 100%;
+        height: 2px;
+        content: '';
+        position: absolute;
+        background-color: #7d7d7d;
+        top: 15px;
+        left: -50%;
+        z-index: -1;
+    }
+    .progressbar li:first-child:after {
+        content: none;
+    }
+    .progressbar li.active {
+        color: #4e73df;
+    }
+    .progressbar li.active:before {
+        border-color: #4e73df;
+        background-color: #4e73df;
+        color: white;
+    }
+    .progressbar li.active:after {
+        background-color: #4e73df;
+    }
+    .progressbar li:before {
+        content: "\f00c";
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        color: white;
+    }
+    .progressbar li i {
+        font-size: 1.2rem;
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    /* Product Thumbnail */
+    .product-thumbnail {
+        max-width: 50px;
+        max-height: 50px;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+    
+    /* Badge colors */
+    .badge-pink {
+        background-color: #e83e8c;
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        {% if order.order_status == 'cancelled' %}
+            // Add strikethrough effect for cancelled orders
+            $('.card-body table tbody tr').css('text-decoration', 'line-through');
+        {% endif %}
+    });
+</script>
+{% endblock %} 

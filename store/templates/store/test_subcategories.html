@@ -1,0 +1,133 @@
+{% extends "store/base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Subcategory Test{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <h1>Subcategory Test</h1>
+        
+        <h2>All Categories</h2>
+        <div class="row">
+            {% for category in categories %}
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ category.name }}</h5>
+                        <p>ID: {{ category.id }}</p>
+                        <p>Subcategory count: {{ category_counts|get_item:category.id }}</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-warning">No categories found.</div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <h2 class="mt-5">All Subcategories</h2>
+        <div class="row">
+            {% for subcategory in subcategories %}
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ subcategory.name }}</h5>
+                        <p>ID: {{ subcategory.id }}</p>
+                        <p>Category: {{ subcategory.category.name }} (ID: {{ subcategory.category.id }})</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-warning">No subcategories found.</div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <h2 class="mt-5">Test Interface</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="category-select">Category:</label>
+                    <select id="category-select" class="form-control">
+                        <option value="">Select a category</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="subcategory-select">Subcategory:</label>
+                    <select id="subcategory-select" class="form-control" disabled>
+                        <option value="">Select a category first</option>
+                    </select>
+                </div>
+                
+                <div id="result-container" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#category-select').on('change', function() {
+            var categoryId = $(this).val();
+            var subcategorySelect = $('#subcategory-select');
+            
+            if (categoryId) {
+                // Show loading message
+                subcategorySelect.html('<option value="">Loading subcategories...</option>');
+                subcategorySelect.prop('disabled', true);
+                
+                // Fetch subcategories for this category
+                $.ajax({
+                    url: '{% url "get_subcategories" %}',
+                    data: { category_id: categoryId },
+                    dataType: 'json',
+                    success: function(data) {
+                        subcategorySelect.empty();
+                        subcategorySelect.append('<option value="">Select a subcategory</option>');
+                        
+                        if (data.length > 0) {
+                            $.each(data, function(index, item) {
+                                subcategorySelect.append(
+                                    $('<option></option>').attr('value', item.id).text(item.name)
+                                );
+                            });
+                            subcategorySelect.prop('disabled', false);
+                            $('#result-container').html(
+                                '<div class="alert alert-success">' + 
+                                'Found ' + data.length + ' subcategories for this category.' +
+                                '</div>'
+                            );
+                        } else {
+                            $('#result-container').html(
+                                '<div class="alert alert-warning">' + 
+                                'No subcategories found for this category.' +
+                                '</div>'
+                            );
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $('#result-container').html(
+                            '<div class="alert alert-danger">' + 
+                            'Error loading subcategories: ' + error +
+                            '</div>'
+                        );
+                        subcategorySelect.html('<option value="">Error loading subcategories</option>');
+                    }
+                });
+            } else {
+                subcategorySelect.html('<option value="">Select a category first</option>');
+                subcategorySelect.prop('disabled', true);
+                $('#result-container').empty();
+            }
+        });
+    });
+</script>
+{% endblock %} 

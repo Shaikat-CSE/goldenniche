@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>Return Policy - Golden Niche</title>
+
+    <!-- Favicon -->
+	<link rel="icon" type="image/png" href="{% static 'img/favicon-32x32.png' %}">
+	<link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
+
+    <!-- Google font -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
+
+    <!-- Bootstrap -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+
+    <!-- Slick -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/slick.css' %}"/>
+    <link type="text/css" rel="stylesheet" href="{% static 'css/slick-theme.css' %}"/>
+
+    <!-- nouislider -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/nouislider.min.css' %}"/>
+
+    <!-- Font Awesome Icon -->
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+
+    <!-- Custom stlylesheet -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    {% include 'store/header.html' %}
+
+    <!-- BREADCRUMB -->
+    <div id="breadcrumb" class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 class="breadcrumb-header">Return Policy</h3>
+                    <ul class="breadcrumb-tree">
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li class="active">Return Policy</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /BREADCRUMB -->
+
+    <!-- SECTION -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <div class="policy-content">
+                        <div class="section-title">
+                            <h3 class="title">Return & Refund Policy</h3>
+                        </div>
+                        
+                        <div class="policy-section">
+                            <h4>1. Return Policy Overview</h4>
+                            <p>At Golden Niche BD, we want you to be completely satisfied with your purchase. If you're not entirely happy with your order, we're here to help. This policy outlines how you can return items purchased from our online store.</p>
+                        </div>
+                        
+                        <div class="policy-section">
+                            <h4>2. Return Eligibility</h4>
+                            <p>You may return most new, unopened items within 7 days of delivery for a full refund. We also accept returns of opened items within 3 days of delivery if the item is defective or damaged upon arrival.</p>
+                            
+                            <h5>2.1 Eligible Items</h5>
+                            <ul>
+                                <li>Items in original packaging</li>
+                                <li>Unopened and unused products</li>
+                                <li>Defective or damaged products (as received)</li>
+                            </ul>
+                            
+                            <h5>2.2 Non-Eligible Items</h5>
+                            <ul>
+                                <li>Perishable goods such as food items</li>
+                                <li>Personalized or custom-made products</li>
+                                <li>Digital products or downloadable items</li>
+                                <li>Items marked as "Final Sale" or "Non-Returnable"</li>
+                                <li>Products with broken seals or missing parts</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="policy-section">
+                            <h4>3. Return Process</h4>
+                            <p>To initiate a return, please follow these steps:</p>
+                            <ol>
+                                <li>Contact our customer service team at <strong>support@goldennichebd.com</strong> or call <strong>+880 1234 567890</strong> within the eligible return period.</li>
+                                <li>Provide your order number, the items you wish to return, and the reason for the return.</li>
+                                <li>Our team will provide you with a Return Authorization Number (RAN) and instructions for returning the item.</li>
+                                <li>Package the item securely in its original packaging if possible.</li>
+                                <li>Include the RAN and a copy of your invoice in the package.</li>
+                                <li>Ship the package to the address provided by our customer service team.</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="policy-section">
+                            <h4>4. Refund Process</h4>
+                            <p>Once we receive your returned item, our team will inspect it to ensure it meets our return policy requirements. The inspection process typically takes 1-2 business days.</p>
+                            
+                            <h5>4.1 Approved Returns</h5>
+                            <p>If your return is approved:</p>
+                            <ul>
+                                <li>For payment by credit/debit card: We will credit your account within 5-7 business days.</li>
+                                <li>For payment by bKash: We will process the refund to your bKash account within 3-5 business days.</li>
+                                <li>For cash on delivery payments: We will issue a bank transfer or store credit as per your preference.</li>
+                            </ul>
+                            
+                            <h5>4.2 Rejected Returns</h5>
+                            <p>If your return does not meet our policy requirements, we will notify you via email with the reason for rejection. In such cases, the item will be shipped back to you at your expense.</p>
+                        </div>
+                        
+                        <div class="policy-section">
+                            <h4>5. Shipping Costs for Returns</h4>
+                            <p>Shipping costs for returns are handled as follows:</p>
+                            <ul>
+                                <li>For defective or damaged items: Golden Niche BD will cover the return shipping costs.</li>
+                                <li>For change of mind or other non-defective returns: The customer is responsible for the return shipping costs.</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="policy-section">
+                            <h4>6. Exchanges</h4>
+                            <p>If you wish to exchange an item for a different size, color, or product, please follow the return process and place a new order for the desired item. This ensures faster processing of your exchange.</p>
+                        </div>
+                        
+                        <div class="policy-section">
+                            <h4>7. Contact Information</h4>
+                            <p>If you have any questions about our Return & Refund Policy, please contact us:</p>
+                            <ul>
+                                <li>Email: support@goldennichebd.com</li>
+                                <li>Phone: +880 1234 567890</li>
+                                <li>Hours: Monday to Friday, 9:00 AM to 6:00 PM (Bangladesh Standard Time)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="policy-section">
+                            <h4>8. Policy Updates</h4>
+                            <p>We reserve the right to modify this policy at any time. Changes will be effective immediately upon posting to our website. It is your responsibility to review this Return Policy periodically.</p>
+                            <p>Last Updated: June 15, 2023</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /SECTION -->
+
+    {% include 'store/footer.html' %}
+
+    <!-- jQuery Plugins -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/slick.min.js' %}"></script>
+    <script src="{% static 'js/nouislider.min.js' %}"></script>
+    <script src="{% static 'js/jquery.zoom.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+
+    <style>
+        .policy-content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+        }
+        .policy-section {
+            margin-bottom: 30px;
+        }
+        .policy-section h4 {
+            color: #2B2D42;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e4e7ed;
+            padding-bottom: 10px;
+        }
+        .policy-section h5 {
+            color: #2B2D42;
+            margin: 15px 0 10px;
+            font-weight: 600;
+        }
+        .policy-section p, .policy-section ul, .policy-section ol {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        .policy-section ul, .policy-section ol {
+            padding-left: 20px;
+        }
+        .policy-section li {
+            margin-bottom: 5px;
+        }
+    </style>
+</body>
+</html>

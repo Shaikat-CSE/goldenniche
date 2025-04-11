@@ -1,0 +1,58 @@
+/* Mobile Category Header Styling */
+.mobile-category-header {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding: 0 5px;
+}
+
+.mobile-category-header .row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mobile-category-header .category-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2B2D42;
+    margin: 0;
+    text-align: left;
+}
+
+.mobile-category-header .btn-view-all {
+    background: none;
+    border: none;
+    color: #D10024;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: none;
+    box-shadow: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.mobile-category-header .btn-view-all:after {
+    content: '>';
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.mobile-category-header .btn-view-all:hover {
+    background: none;
+    color: #2B2D42;
+}
+
+/* Ensure desktop layout is not affected */
+@media only screen and (min-width: 768px) {
+    .mobile-category-header {
+        display: none !important;
+    }
+} 

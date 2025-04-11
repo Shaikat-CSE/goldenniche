@@ -1,0 +1,381 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Golden Niche BD{% endblock %}
+
+{% block breadcrumb %}
+    <span>Dashboard Home</span>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-overview">
+    <!-- Stats Cards -->
+    <div class="row">
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon stats-primary">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div class="stats-details">
+                            <h3>{{ total_products }}</h3>
+                            <p>Products</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon stats-warning">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="stats-details">
+                            <h3>{{ total_categories }}</h3>
+                            <p>Categories</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon stats-info">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stats-details">
+                            <h3>{{ total_users }}</h3>
+                            <p>Users</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon stats-danger">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="stats-details">
+                            <h3>{{ pending_return_requests }}</h3>
+                            <p>Pending Returns</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Orders Overview Row -->
+    <div class="row">
+        <!-- Total Orders Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_orders }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-bag fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Orders Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Pending Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_orders }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processing Orders Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Processing Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ processing_orders }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-spinner fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Revenue</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">৳{{ total_revenue|floatformat:2 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts and Tables Row -->
+    <div class="row">
+        <!-- Sales Chart -->
+        <div class="col-xl-8 col-lg-7 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Monthly Sales Overview</h5>
+                    <div class="card-actions">
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="salesChart" 
+                            data-labels="{{ monthly_sales_labels|join:',' }}" 
+                            data-values="{{ monthly_sales_data|join:',' }}"
+                            height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Categories Chart -->
+        <div class="col-xl-4 col-lg-5 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Product Categories</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoriesChart"
+                            data-labels="{{ category_labels|join:',' }}"
+                            data-values="{{ category_data|join:',' }}"
+                            height="260"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity and Latest Requests Row -->
+    <div class="row">
+        <!-- Recent Activity -->
+        <div class="col-xl-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Activity</h5>
+                    <a href="{% url 'dashboard:activity_list' %}" class="btn btn-sm btn-link">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Type</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in recent_activities %}
+                                <tr>
+                                    <td>{{ activity.user.username }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if activity.action == 'create' %}success{% elif activity.action == 'update' %}info{% elif activity.action == 'delete' %}danger{% else %}secondary{% endif %}">
+                                            {{ activity.action|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ activity.entity_type|title }}</td>
+                                    <td>{{ activity.created_at|timesince }} ago</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No recent activity</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Latest Return Requests -->
+        <div class="col-xl-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Latest Return Requests</h5>
+                    <a href="{% url 'dashboard:return_request_list' %}" class="btn btn-sm btn-link">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Item</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in return_requests %}
+                                <tr>
+                                    <td>{{ request.order_number }}</td>
+                                    <td>{{ request.item_name|truncatechars:20 }}</td>
+                                    <td>{{ request.return_type|title }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if request.status == 'pending' %}warning{% elif request.status == 'approved' %}success{% elif request.status == 'rejected' %}danger{% else %}info{% endif %}">
+                                            {{ request.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ request.created_at|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No return requests</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{% url 'dashboard:product_create' %}" class="btn btn-primary w-100 py-3">
+                                <i class="fas fa-plus-circle mb-2 d-block" style="font-size: 24px;"></i>
+                                Add New Product
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{% url 'dashboard:category_create' %}" class="btn btn-success w-100 py-3">
+                                <i class="fas fa-folder-plus mb-2 d-block" style="font-size: 24px;"></i>
+                                Add New Category
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{% url 'dashboard:blog_create' %}" class="btn btn-info w-100 py-3">
+                                <i class="fas fa-edit mb-2 d-block" style="font-size: 24px;"></i>
+                                Create Blog Post
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{% url 'dashboard:user_create' %}" class="btn btn-warning w-100 py-3">
+                                <i class="fas fa-user-plus mb-2 d-block" style="font-size: 24px;"></i>
+                                Add New User
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Recent Orders</h6>
+            <a href="{% url 'dashboard:order_list' %}" class="btn btn-sm btn-primary">
+                View All Orders
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td>{{ order.order_number }}</td>
+                            <td>{{ order.first_name }} {{ order.last_name }}</td>
+                            <td>{{ order.created_at|date:"M d, Y" }}</td>
+                            <td>৳{{ order.grand_total }}</td>
+                            <td>
+                                <span class="badge badge-pill 
+                                {% if order.order_status == 'delivered' %}badge-success
+                                {% elif order.order_status == 'shipped' %}badge-info
+                                {% elif order.order_status == 'processing' %}badge-primary
+                                {% elif order.order_status == 'cancelled' %}badge-danger
+                                {% else %}badge-warning{% endif %}">
+                                    {{ order.get_order_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'dashboard:order_detail' order.id %}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No orders found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Additional dashboard-specific JavaScript can be added here
+    document.addEventListener('DOMContentLoaded', function() {
+        // If you need any dashboard-specific initialization
+    });
+</script>
+{% endblock %} 

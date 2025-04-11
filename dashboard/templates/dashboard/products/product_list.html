@@ -1,0 +1,167 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Products - Dashboard{% endblock %}
+
+{% block breadcrumb %}
+    <span><a href="{% url 'dashboard:home' %}">Dashboard</a></span> / <span>Products</span>
+{% endblock %}
+
+{% block content %}
+<div class="product-listing">
+    <!-- Header with actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Products</h2>
+        <a href="{% url 'dashboard:product_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-2"></i> Add New Product
+        </a>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="category" class="form-label">Category</label>
+                    <select name="category" id="category" class="form-select">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Search</label>
+                    <input type="text" name="q" id="search" class="form-control" placeholder="Search products..." value="{{ search_query|default:'' }}">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-secondary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Products Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover datatable">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}" width="50" height="50" class="rounded">
+                                {% else %}
+                                    <div class="no-image">No Image</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ product.name }}
+                                {% if product.is_featured %}<span class="badge bg-info ms-1">Featured</span>{% endif %}
+                                {% if product.is_new %}<span class="badge bg-success ms-1">New</span>{% endif %}
+                                {% if product.is_sale %}<span class="badge bg-danger ms-1">Sale</span>{% endif %}
+                            </td>
+                            <td>
+                                {{ product.category.name }}
+                                {% if product.subcategory %}
+                                    <small class="text-muted d-block">{{ product.subcategory.name }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if product.discount_price %}
+                                    <span class="text-danger">৳{{ product.discount_price }}</span>
+                                    <small class="text-muted text-decoration-line-through d-block">৳{{ product.price }}</small>
+                                {% else %}
+                                    ৳{{ product.price }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if product.current_stock > 10 %}
+                                    <span class="text-success">{{ product.current_stock }}</span>
+                                {% elif product.current_stock > 0 %}
+                                    <span class="text-warning">{{ product.current_stock }}</span>
+                                {% else %}
+                                    <span class="text-danger">Out of stock</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if product.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'dashboard:product_edit' product.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'dashboard:product_delete' product.id %}" class="btn btn-sm btn-danger delete-confirm">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="empty-state">
+                                    <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                                    <h4>No products found</h4>
+                                    <p class="text-muted">Try changing your search criteria or add a new product.</p>
+                                    <a href="{% url 'dashboard:product_create' %}" class="btn btn-primary mt-3">
+                                        <i class="fas fa-plus-circle me-2"></i> Add New Product
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Instead of re-initializing DataTable, customize the existing one if it exists
+        if ($.fn.DataTable.isDataTable('.datatable')) {
+            const existingTable = $('.datatable').DataTable();
+            
+            // Configure the existing table
+            existingTable.page.len(25).draw();
+            
+            // Update search placeholder
+            $('.dataTables_filter input')
+                .attr('placeholder', 'Search products...')
+                .parent()
+                .addClass('custom-search');
+        }
+    });
+</script>
+{% endblock %} 

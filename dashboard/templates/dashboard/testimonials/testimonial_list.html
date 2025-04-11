@@ -1,0 +1,268 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Testimonials - Dashboard{% endblock %}
+
+{% block breadcrumb %}
+    <span><a href="{% url 'dashboard:home' %}">Dashboard</a></span> / 
+    <span>Testimonials</span>
+{% endblock %}
+
+{% block content %}
+<div class="testimonial-list">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Testimonials</h2>
+        <a href="{% url 'dashboard:testimonial_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i> Add New Testimonial
+        </a>
+    </div>
+    
+    <!-- Alerts for messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Main Card -->
+    <div class="card">
+        <div class="card-body">
+            <!-- Search and Filter -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <form method="get" class="d-flex">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Search testimonials..." value="{{ request.GET.search|default:'' }}">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <select name="status" class="form-select ms-2" style="width: auto;" onchange="this.form.submit()">
+                            <option value="">All Status</option>
+                            <option value="approved" {% if request.GET.status == 'approved' %}selected{% endif %}>Approved</option>
+                            <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                    </form>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <span class="text-muted">Total Testimonials: <strong>{{ testimonials.count }}</strong></span>
+                </div>
+            </div>
+            
+            <!-- Testimonials Table -->
+            {% if testimonials %}
+                <div class="table-responsive">
+                    <table id="testimonialTable" class="datatable">
+                        <thead>
+                            <tr>
+                                <th width="60">Photo</th>
+                                <th>Customer</th>
+                                <th>Testimonial</th>
+                                <th>Rating</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th width="120">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for testimonial in testimonials %}
+                                <tr>
+                                    <td>
+                                        {% if testimonial.image %}
+                                            <img src="{{ testimonial.image.url }}" alt="{{ testimonial.name }}" class="img-thumbnail rounded-circle" width="50" height="50">
+                                        {% else %}
+                                            <div class="user-icon-placeholder rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">{{ testimonial.name }}</div>
+                                        {% if testimonial.company %}
+                                            <small class="text-muted">{{ testimonial.company }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="testimonial-text">
+                                            {{ testimonial.content|truncatechars:100 }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="text-warning">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= testimonial.rating %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ testimonial.created_at|date:"M d, Y" }}
+                                    </td>
+                                    <td>
+                                        {% if testimonial.status == 'approved' %}
+                                            <span class="badge bg-success">Approved</span>
+                                        {% elif testimonial.status == 'pending' %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'dashboard:testimonial_edit' testimonial.id %}" class="btn btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if testimonial.status == 'pending' %}
+                                                <a href="{% url 'dashboard:testimonial_approve' testimonial.id %}" class="btn btn-outline-success" title="Approve">
+                                                    <i class="fas fa-check"></i>
+                                                </a>
+                                                <a href="{% url 'dashboard:testimonial_reject' testimonial.id %}" class="btn btn-outline-danger" title="Reject">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
+                                            {% else %}
+                                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ testimonial.id }}" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Delete Confirmation Modal -->
+                                        <div class="modal fade" id="deleteModal{{ testimonial.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ testimonial.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="deleteModalLabel{{ testimonial.id }}">Confirm Delete</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete the testimonial from <strong>{{ testimonial.name }}</strong>?</p>
+                                                        <p class="text-danger">This action cannot be undone.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form method="post" action="{% url 'dashboard:testimonial_delete' testimonial.id %}">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if testimonials.has_other_pages %}
+                    <nav aria-label="Testimonials pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if testimonials.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="First">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ testimonials.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;&laquo;</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;</span>
+                                </li>
+                            {% endif %}
+                            
+                            {% for i in testimonials.paginator.page_range %}
+                                {% if testimonials.number == i %}
+                                    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                                {% elif i > testimonials.number|add:'-3' and i < testimonials.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ i }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ i }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if testimonials.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ testimonials.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ testimonials.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;&raquo;</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+                
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-comment-dots fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted">No Testimonials Found</h4>
+                    {% if request.GET.search or request.GET.status %}
+                        <p class="text-muted">
+                            {% if request.GET.search %}
+                                No testimonials match your search criteria: <strong>"{{ request.GET.search }}"</strong>
+                            {% endif %}
+                            {% if request.GET.status %}
+                                No {{ request.GET.status }} testimonials found.
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'dashboard:testimonial_list' %}" class="btn btn-outline-secondary mt-3">
+                            <i class="fas fa-undo me-2"></i> Clear Filters
+                        </a>
+                    {% else %}
+                        <p class="text-muted">Get started by creating your first testimonial</p>
+                        <a href="{% url 'dashboard:testimonial_create' %}" class="btn btn-primary mt-3">
+                            <i class="fas fa-plus me-2"></i> Add New Testimonial
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips only if they haven't been initialized yet
+        if (typeof bootstrap !== 'undefined' && typeof bootstrap.Tooltip !== 'undefined') {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+            tooltipTriggerList.forEach(function(el) {
+                if (!el.hasAttribute('data-bs-original-title')) {
+                    new bootstrap.Tooltip(el);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

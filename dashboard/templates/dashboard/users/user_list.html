@@ -1,0 +1,258 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Users - Dashboard{% endblock %}
+
+{% block breadcrumb %}
+    <span><a href="{% url 'dashboard:home' %}">Dashboard</a></span> / 
+    <span>Users</span>
+{% endblock %}
+
+{% block content %}
+<div class="user-list">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Users</h2>
+        <a href="{% url 'dashboard:user_create' %}" class="btn btn-primary">
+            <i class="fas fa-user-plus me-2"></i> Add New User
+        </a>
+    </div>
+    
+    <!-- Alerts for messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Main Card -->
+    <div class="card">
+        <div class="card-body">
+            <!-- Search and Filter -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <form method="get" class="d-flex">
+                        <div class="input-group me-2">
+                            <input type="text" name="search" class="form-control" placeholder="Search users..." value="{{ request.GET.search|default:'' }}">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        
+                        <select name="role" class="form-select" style="max-width: 150px;" onchange="this.form.submit()">
+                            <option value="">All Roles</option>
+                            <option value="admin" {% if request.GET.role == 'admin' %}selected{% endif %}>Admin</option>
+                            <option value="staff" {% if request.GET.role == 'staff' %}selected{% endif %}>Staff</option>
+                            <option value="customer" {% if request.GET.role == 'customer' %}selected{% endif %}>Customer</option>
+                        </select>
+                        
+                        <select name="status" class="form-select ms-2" style="max-width: 150px;" onchange="this.form.submit()">
+                            <option value="">All Status</option>
+                            <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                            <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </form>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <span class="text-muted">Total Users: <strong>{{ users.count }}</strong></span>
+                </div>
+            </div>
+            
+            <!-- Users Table -->
+            {% if users %}
+                <div class="table-responsive">
+                    <table id="userTable" class="datatable">
+                        <thead>
+                            <tr>
+                                <th width="60">Avatar</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Date Joined</th>
+                                <th>Last Login</th>
+                                <th>Status</th>
+                                <th width="120">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                                <tr>
+                                    <td>
+                                        {% if user.profile.avatar %}
+                                            <img src="{{ user.profile.avatar.url }}" alt="{{ user.get_full_name }}" class="img-thumbnail rounded-circle" width="50" height="50">
+                                        {% else %}
+                                            <div class="user-icon-placeholder rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                {% if user.get_full_name %}
+                                                    {{ user.get_full_name|first|upper }}
+                                                {% else %}
+                                                    {{ user.username|first|upper }}
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">{{ user.get_full_name|default:user.username }}</div>
+                                        <small class="text-muted">@{{ user.username }}</small>
+                                    </td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        {% if user.is_superuser %}
+                                            <span class="badge bg-danger">Admin</span>
+                                        {% elif user.is_staff %}
+                                            <span class="badge bg-warning text-dark">Staff</span>
+                                        {% else %}
+                                            <span class="badge bg-info text-dark">Customer</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if user.last_login %}
+                                            {{ user.last_login|date:"M d, Y" }}
+                                        {% else %}
+                                            <span class="text-muted fst-italic">Never</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if user.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'dashboard:user_edit' user.id %}" class="btn btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'dashboard:user_detail' user.id %}" class="btn btn-outline-info" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if not user.is_superuser or request.user.is_superuser %}
+                                                {% if user.is_active %}
+                                                    <a href="{% url 'dashboard:user_deactivate' user.id %}" class="btn btn-outline-warning" title="Deactivate">
+                                                        <i class="fas fa-user-slash"></i>
+                                                    </a>
+                                                {% else %}
+                                                    <a href="{% url 'dashboard:user_activate' user.id %}" class="btn btn-outline-success" title="Activate">
+                                                        <i class="fas fa-user-check"></i>
+                                                    </a>
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if users.has_other_pages %}
+                    <nav aria-label="Users pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if users.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.role %}&role={{ request.GET.role }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="First">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ users.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.role %}&role={{ request.GET.role }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;&laquo;</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;</span>
+                                </li>
+                            {% endif %}
+                            
+                            {% for i in users.paginator.page_range %}
+                                {% if users.number == i %}
+                                    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                                {% elif i > users.number|add:'-3' and i < users.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ i }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.role %}&role={{ request.GET.role }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ i }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if users.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ users.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.role %}&role={{ request.GET.role }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ users.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.role %}&role={{ request.GET.role }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;&raquo;</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+                
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-users fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted">No Users Found</h4>
+                    {% if request.GET.search or request.GET.role or request.GET.status %}
+                        <p class="text-muted">
+                            No users match your search criteria
+                            {% if request.GET.search %}
+                                <strong>"{{ request.GET.search }}"</strong>
+                            {% endif %}
+                            {% if request.GET.role %}
+                                with role <strong>"{{ request.GET.role }}"</strong>
+                            {% endif %}
+                            {% if request.GET.status %}
+                                with status <strong>"{{ request.GET.status }}"</strong>
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'dashboard:user_list' %}" class="btn btn-outline-secondary mt-3">
+                            <i class="fas fa-undo me-2"></i> Clear Filters
+                        </a>
+                    {% else %}
+                        <p class="text-muted">Get started by creating your first user</p>
+                        <a href="{% url 'dashboard:user_create' %}" class="btn btn-primary mt-3">
+                            <i class="fas fa-user-plus me-2"></i> Add New User
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips only if they haven't been initialized yet
+        if (typeof bootstrap !== 'undefined' && typeof bootstrap.Tooltip !== 'undefined') {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+            tooltipTriggerList.forEach(function(el) {
+                if (!el.hasAttribute('data-bs-original-title')) {
+                    new bootstrap.Tooltip(el);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

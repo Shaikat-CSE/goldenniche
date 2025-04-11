@@ -1,0 +1,44 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}403 - Forbidden - Golden Niche BD{% endblock %}
+
+{% block content %}
+<!-- BREADCRUMB -->
+<div id="breadcrumb" class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">403 - Forbidden</h3>
+                <ul class="breadcrumb-tree">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li class="active">403</li>
+                </ul>
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /BREADCRUMB -->
+
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h2>Access Denied</h2>
+                <p>Sorry, you don't have permission to access this page.</p>
+                <a href="{% url 'home' %}" class="primary-btn">Go to Homepage</a>
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+{% endblock %} 

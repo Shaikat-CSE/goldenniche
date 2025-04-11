@@ -1,0 +1,234 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Categories - Dashboard{% endblock %}
+
+{% block breadcrumb %}
+    <span><a href="{% url 'dashboard:home' %}">Dashboard</a></span> / 
+    <span>Categories</span>
+{% endblock %}
+
+{% block content %}
+<div class="category-list">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Categories</h2>
+        <a href="{% url 'dashboard:category_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i> Add New Category
+        </a>
+    </div>
+    
+    <!-- Alerts for messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Main Card -->
+    <div class="card">
+        <div class="card-body">
+            <!-- Search and Filter -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <form method="get" class="d-flex">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Search categories..." value="{{ request.GET.search|default:'' }}">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <span class="text-muted">Total Categories: <strong>{{ categories.count }}</strong></span>
+                </div>
+            </div>
+            
+            <!-- Categories Table -->
+            {% if categories %}
+                <div class="table-responsive">
+                    <table id="categoryTable" class="datatable">
+                        <thead>
+                            <tr>
+                                <th width="70">Image</th>
+                                <th>Name</th>
+                                <th>Slug</th>
+                                <th>Subcategories</th>
+                                <th>Products</th>
+                                <th>Status</th>
+                                <th width="120">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in categories %}
+                                <tr>
+                                    <td>
+                                        {% if category.image %}
+                                            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-thumbnail" width="50">
+                                        {% else %}
+                                            <div class="text-center text-muted">
+                                                <i class="fas fa-image fa-2x"></i>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ category.name }}</td>
+                                    <td>{{ category.slug }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ category.subcategories.count }}</span>
+                                        {% if category.subcategories.count > 0 %}
+                                            <a href="{% url 'dashboard:subcategory_list' %}?category={{ category.id }}" class="ms-2 text-decoration-none">
+                                                <small>View</small>
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ category.products.count }}</span>
+                                        {% if category.products.count > 0 %}
+                                            <a href="{% url 'dashboard:product_list' %}?category={{ category.id }}" class="ms-2 text-decoration-none">
+                                                <small>View</small>
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if category.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'dashboard:category_edit' category.id %}" class="btn btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ category.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Delete Confirmation Modal -->
+                                        <div class="modal fade" id="deleteModal{{ category.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ category.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="deleteModalLabel{{ category.id }}">Confirm Delete</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete <strong>{{ category.name }}</strong>?</p>
+                                                        {% if category.products.count > 0 %}
+                                                            <div class="alert alert-warning">
+                                                                <i class="fas fa-exclamation-triangle me-2"></i> This category has {{ category.products.count }} products. Deleting it will affect these products.
+                                                            </div>
+                                                        {% endif %}
+                                                        {% if category.subcategories.count > 0 %}
+                                                            <div class="alert alert-warning">
+                                                                <i class="fas fa-exclamation-triangle me-2"></i> This category has {{ category.subcategories.count }} subcategories. Deleting it will affect these subcategories.
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form method="post" action="{% url 'dashboard:category_delete' category.id %}">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if categories.has_other_pages %}
+                    <nav aria-label="Categories pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if categories.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="First">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ categories.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;&laquo;</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;</span>
+                                </li>
+                            {% endif %}
+                            
+                            {% for i in categories.paginator.page_range %}
+                                {% if categories.number == i %}
+                                    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                                {% elif i > categories.number|add:'-3' and i < categories.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ i }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ i }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if categories.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ categories.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ categories.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;&raquo;</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+                
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-folder-open fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted">No Categories Found</h4>
+                    {% if request.GET.search %}
+                        <p class="text-muted">No categories match your search criteria: <strong>"{{ request.GET.search }}"</strong></p>
+                        <a href="{% url 'dashboard:category_list' %}" class="btn btn-outline-secondary mt-3">
+                            <i class="fas fa-undo me-2"></i> Clear Search
+                        </a>
+                    {% else %}
+                        <p class="text-muted">Get started by creating your first category</p>
+                        <a href="{% url 'dashboard:category_create' %}" class="btn btn-primary mt-3">
+                            <i class="fas fa-plus me-2"></i> Add New Category
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- The DataTable initialization is now handled by dashboard.js -->
+{% endblock %} 

@@ -1,0 +1,260 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Settings - Dashboard{% endblock %}
+
+{% block breadcrumb %}
+    <span><a href="{% url 'dashboard:home' %}">Dashboard</a></span> / 
+    <span>Settings</span>
+{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Dashboard Settings</h2>
+    </div>
+    
+    <!-- Alerts for messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Settings Form -->
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="row">
+            <!-- Settings Navigation -->
+            <div class="col-lg-3 mb-4">
+                <div class="list-group settings-nav sticky-top" style="top: 20px;">
+                    <a href="#general" class="list-group-item list-group-item-action active" data-bs-toggle="list">
+                        <i class="fas fa-cog me-2"></i> General
+                    </a>
+                    <a href="#notifications" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                        <i class="fas fa-bell me-2"></i> Notifications
+                    </a>
+                    <a href="#appearance" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                        <i class="fas fa-palette me-2"></i> Appearance
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Settings Content -->
+            <div class="col-lg-9">
+                <div class="tab-content">
+                    <!-- General Settings -->
+                    <div class="tab-pane fade show active" id="general">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">General Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if general_settings %}
+                                    {% for setting in general_settings %}
+                                        <div class="mb-3">
+                                            <label for="{{ setting.key }}" class="form-label">
+                                                {{ setting.key|slice:"8:"|title }}
+                                                {% if setting.description %}
+                                                    <i class="fas fa-info-circle text-muted" title="{{ setting.description }}"></i>
+                                                {% endif %}
+                                            </label>
+                                            
+                                            {% if setting.key == "general_date_format" or setting.key == "general_time_format" %}
+                                                <select name="{{ setting.key }}" id="{{ setting.key }}" class="form-select">
+                                                    {% if setting.key == "general_date_format" %}
+                                                        <option value="Y-m-d" {% if setting.value == "Y-m-d" %}selected{% endif %}>YYYY-MM-DD</option>
+                                                        <option value="m/d/Y" {% if setting.value == "m/d/Y" %}selected{% endif %}>MM/DD/YYYY</option>
+                                                        <option value="d/m/Y" {% if setting.value == "d/m/Y" %}selected{% endif %}>DD/MM/YYYY</option>
+                                                        <option value="F j, Y" {% if setting.value == "F j, Y" %}selected{% endif %}>Month Day, Year</option>
+                                                    {% else %}
+                                                        <option value="H:i" {% if setting.value == "H:i" %}selected{% endif %}>24-hour (15:30)</option>
+                                                        <option value="h:i A" {% if setting.value == "h:i A" %}selected{% endif %}>12-hour (03:30 PM)</option>
+                                                    {% endif %}
+                                                </select>
+                                            {% elif setting.key == "general_items_per_page" %}
+                                                <select name="{{ setting.key }}" id="{{ setting.key }}" class="form-select">
+                                                    <option value="10" {% if setting.value == "10" %}selected{% endif %}>10</option>
+                                                    <option value="25" {% if setting.value == "25" %}selected{% endif %}>25</option>
+                                                    <option value="50" {% if setting.value == "50" %}selected{% endif %}>50</option>
+                                                    <option value="100" {% if setting.value == "100" %}selected{% endif %}>100</option>
+                                                </select>
+                                            {% elif setting.key == "general_enable_activity_log" or setting.key == "general_enable_user_tracking" %}
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" role="switch" id="{{ setting.key }}" name="{{ setting.key }}" value="true" {% if setting.value == "true" %}checked{% endif %}>
+                                                    <label class="form-check-label" for="{{ setting.key }}">
+                                                        {{ setting.value|yesno:"Enabled,Disabled" }}
+                                                    </label>
+                                                </div>
+                                            {% else %}
+                                                <input type="text" class="form-control" id="{{ setting.key }}" name="{{ setting.key }}" value="{{ setting.value }}">
+                                            {% endif %}
+                                            
+                                            {% if setting.description %}
+                                                <div class="form-text">{{ setting.description }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="alert alert-info mb-0">
+                                        <i class="fas fa-info-circle me-2"></i> No general settings defined yet.
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Notification Settings -->
+                    <div class="tab-pane fade" id="notifications">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Notification Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if notification_settings %}
+                                    {% for setting in notification_settings %}
+                                        <div class="mb-3">
+                                            <label for="{{ setting.key }}" class="form-label">
+                                                {{ setting.key|slice:"13:"|title }}
+                                                {% if setting.description %}
+                                                    <i class="fas fa-info-circle text-muted" title="{{ setting.description }}"></i>
+                                                {% endif %}
+                                            </label>
+                                            
+                                            {% if "enable" in setting.key %}
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" role="switch" id="{{ setting.key }}" name="{{ setting.key }}" value="true" {% if setting.value == "true" %}checked{% endif %}>
+                                                    <label class="form-check-label" for="{{ setting.key }}">
+                                                        {{ setting.value|yesno:"Enabled,Disabled" }}
+                                                    </label>
+                                                </div>
+                                            {% elif "days" in setting.key %}
+                                                <select name="{{ setting.key }}" id="{{ setting.key }}" class="form-select">
+                                                    <option value="1" {% if setting.value == "1" %}selected{% endif %}>1 day</option>
+                                                    <option value="3" {% if setting.value == "3" %}selected{% endif %}>3 days</option>
+                                                    <option value="7" {% if setting.value == "7" %}selected{% endif %}>1 week</option>
+                                                    <option value="14" {% if setting.value == "14" %}selected{% endif %}>2 weeks</option>
+                                                    <option value="30" {% if setting.value == "30" %}selected{% endif %}>1 month</option>
+                                                </select>
+                                            {% else %}
+                                                <input type="text" class="form-control" id="{{ setting.key }}" name="{{ setting.key }}" value="{{ setting.value }}">
+                                            {% endif %}
+                                            
+                                            {% if setting.description %}
+                                                <div class="form-text">{{ setting.description }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="alert alert-info mb-0">
+                                        <i class="fas fa-info-circle me-2"></i> No notification settings defined yet.
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Appearance Settings -->
+                    <div class="tab-pane fade" id="appearance">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Appearance Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if appearance_settings %}
+                                    {% for setting in appearance_settings %}
+                                        <div class="mb-3">
+                                            <label for="{{ setting.key }}" class="form-label">
+                                                {{ setting.key|slice:"11:"|title }}
+                                                {% if setting.description %}
+                                                    <i class="fas fa-info-circle text-muted" title="{{ setting.description }}"></i>
+                                                {% endif %}
+                                            </label>
+                                            
+                                            {% if "color" in setting.key %}
+                                                <input type="color" class="form-control form-control-color" id="{{ setting.key }}" name="{{ setting.key }}" value="{{ setting.value }}">
+                                            {% elif "theme" in setting.key %}
+                                                <select name="{{ setting.key }}" id="{{ setting.key }}" class="form-select">
+                                                    <option value="light" {% if setting.value == "light" %}selected{% endif %}>Light</option>
+                                                    <option value="dark" {% if setting.value == "dark" %}selected{% endif %}>Dark</option>
+                                                    <option value="auto" {% if setting.value == "auto" %}selected{% endif %}>Auto (System)</option>
+                                                </select>
+                                            {% elif "layout" in setting.key %}
+                                                <select name="{{ setting.key }}" id="{{ setting.key }}" class="form-select">
+                                                    <option value="fluid" {% if setting.value == "fluid" %}selected{% endif %}>Fluid</option>
+                                                    <option value="boxed" {% if setting.value == "boxed" %}selected{% endif %}>Boxed</option>
+                                                </select>
+                                            {% else %}
+                                                <input type="text" class="form-control" id="{{ setting.key }}" name="{{ setting.key }}" value="{{ setting.value }}">
+                                            {% endif %}
+                                            
+                                            {% if setting.description %}
+                                                <div class="form-text">{{ setting.description }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="alert alert-info mb-0">
+                                        <i class="fas fa-info-circle me-2"></i> No appearance settings defined yet.
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Save Button -->
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i> Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle tabs and navigation
+        const navLinks = document.querySelectorAll('.settings-nav .list-group-item');
+        
+        navLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all links
+                navLinks.forEach(function(item) {
+                    item.classList.remove('active');
+                });
+                
+                // Add active class to clicked link
+                this.classList.add('active');
+                
+                // Show corresponding tab
+                const tabId = this.getAttribute('href');
+                const tabPane = document.querySelector(tabId);
+                
+                document.querySelectorAll('.tab-pane').forEach(function(pane) {
+                    pane.classList.remove('show', 'active');
+                });
+                
+                tabPane.classList.add('show', 'active');
+            });
+        });
+        
+        // Fix the replace filter issue in template
+        document.querySelectorAll('.form-label').forEach(function(label) {
+            let text = label.textContent.trim();
+            label.textContent = text.replace(/_/g, ' ');
+        });
+    });
+</script>
+{% endblock %} 

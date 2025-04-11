@@ -1,0 +1,473 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>Orders and Returns - Golden Niche</title>
+
+    <!-- Favicon -->
+	<link rel="icon" type="image/png" href="{% static 'img/favicon-32x32.png' %}">
+	<link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
+
+    <!-- Google font -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
+
+    <!-- Bootstrap -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+
+    <!-- Slick -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/slick.css' %}"/>
+    <link type="text/css" rel="stylesheet" href="{% static 'css/slick-theme.css' %}"/>
+
+    <!-- nouislider -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/nouislider.min.css' %}"/>
+
+    <!-- Font Awesome Icon -->
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+
+    <!-- Custom stlylesheet -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <style>
+        .return-form-section {
+            background-color: #f8f8f8;
+            padding: 25px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .return-form .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .return-form label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .return-form .form-control {
+            border-radius: 3px;
+            padding: 10px 15px;
+            height: auto;
+        }
+        
+        .return-form textarea.form-control {
+            min-height: 120px;
+        }
+        
+        .return-form .radio-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .return-form .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .return-form .radio-option input[type="radio"] {
+            margin-top: 0;
+        }
+        
+        .return-form .text-danger {
+            color: #D10024;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        
+        .return-form .primary-btn {
+            margin-top: 10px;
+        }
+        
+        .alert {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'store/header.html' %}
+
+    <!-- BREADCRUMB -->
+    <div id="breadcrumb" class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 class="breadcrumb-header">Orders and Returns</h3>
+                    <ul class="breadcrumb-tree">
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li class="active">Orders and Returns</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /BREADCRUMB -->
+
+    <!-- SECTION -->
+    <div class="section">
+        <div class="container">
+            <!-- Display messages if any -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} alert-dismissible fade in">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="section-title">
+                        <h3 class="title">Orders and Returns</h3>
+                    </div>
+                    
+                    <!-- Orders Information -->
+                    <div class="orders-section">
+                        <h4>Ordering Information</h4>
+                        
+                        <div class="panel-group" id="accordion-orders" style="margin-top: 20px;">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion-orders" href="#collapse-order1">
+                                            How to Place an Order
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapse-order1" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <p>Placing an order on Golden Niche BD is simple and straightforward:</p>
+                                        <ol>
+                                            <li>Browse our <a href="{% url 'home' %}">categories</a> or use the search function to find the products you want.</li>
+                                            <li>Click on the product to view details, select quantity, and click "Add to Cart".</li>
+                                            <li>Review your cart and proceed to checkout.</li>
+                                            <li>Fill in your shipping and billing information.</li>
+                                            <li>Select your preferred payment method.</li>
+                                            <li>Review your order and click "Place Order" to complete your purchase.</li>
+                                        </ol>
+                                        <p>Once your order is placed, you will receive an order confirmation email with details of your purchase.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion-orders" href="#collapse-order2">
+                                            Payment Methods
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapse-order2" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <p>We accept the following payment methods:</p>
+                                        <ul>
+                                            <li>Credit/Debit Cards (Visa, MasterCard)</li>
+                                            <li>bKash</li>
+                                            <li>Nagad</li>
+                                            <li>Rocket</li>
+                                            <li>Cash on Delivery (COD)</li>
+                                        </ul>
+                                        <p>All online payments are processed through secure payment gateways to ensure your financial information is protected.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion-orders" href="#collapse-order3">
+                                            Shipping Information
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapse-order3" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <p>We offer the following shipping options:</p>
+                                        <ul>
+                                            <li><strong>Standard Shipping:</strong> 3-5 business days (৳60 for orders under ৳2,000, free for orders over ৳2,000)</li>
+                                            <li><strong>Express Shipping:</strong> 1-2 business days (৳120 for all orders)</li>
+                                        </ul>
+                                        <p>Shipping times are estimates and may vary depending on your location. Currently, we ship to all major cities in Bangladesh.</p>
+                                        <p>You can track your order using the tracking number provided in your order confirmation email or by logging into your <a href="{% url 'my_account' %}">account</a>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion-orders" href="#collapse-order4">
+                                            Order Status
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapse-order4" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <p>Your order may have one of the following statuses:</p>
+                                        <ul>
+                                            <li><strong>Processing:</strong> Your order has been received and is being processed.</li>
+                                            <li><strong>Packed:</strong> Your order has been packed and is ready for shipping.</li>
+                                            <li><strong>Shipped:</strong> Your order has been shipped and is on its way to you.</li>
+                                            <li><strong>Delivered:</strong> Your order has been delivered.</li>
+                                            <li><strong>Cancelled:</strong> Your order has been cancelled.</li>
+                                        </ul>
+                                        <p>You can check the status of your order by logging into your <a href="{% url 'my_account' %}">account</a> and viewing your order history.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Returns Information -->
+                    <div class="returns-section" style="margin-top: 40px;">
+                        <h4>Returns and Refunds Policy</h4>
+                        
+                        <div class="panel-group" id="accordion-returns" style="margin-top: 20px;">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion-returns" href="#collapse-return1">
+                                            Return Policy
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapse-return1" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <p>We want you to be completely satisfied with your purchase. If you're not, you may be eligible to return the item for a refund or exchange.</p>
+                                        <p><strong>Eligible Items:</strong></p>
+                                        <ul>
+                                            <li>Most new, unopened items can be returned within 7 days of delivery.</li>
+                                            <li>Defective or damaged items can be returned within 7 days of delivery.</li>
+                                        </ul>
+                                        <p><strong>Non-Eligible Items:</strong></p>
+                                        <ul>
+                                            <li>Perishable goods such as food items cannot be returned unless they are damaged or defective upon delivery.</li>
+                                            <li>Items that have been used, opened, or show signs of wear.</li>
+                                            <li>Items marked as "Final Sale" or "Non-Returnable".</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion-returns" href="#collapse-return2">
+                                            How to Return an Item
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapse-return2" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <p>To initiate a return, please follow these steps:</p>
+                                        <ol>
+                                            <li>Contact our customer service team at <a href="mailto:returns@goldennichebd.com">returns@goldennichebd.com</a> or call <a href="tel:+021-95-51-84">+021-95-51-84</a> within 7 days of receiving your order.</li>
+                                            <li>Provide your order number and details of the items you wish to return.</li>
+                                            <li>Our customer service team will guide you through the return process and provide you with a return authorization.</li>
+                                            <li>Pack the item securely in its original packaging if possible.</li>
+                                            <li>Attach the return label provided by our customer service team.</li>
+                                            <li>Ship the item back to us using the shipping method specified by our customer service team.</li>
+                                        </ol>
+                                        <p>You can also initiate a return through your <a href="{% url 'my_account' %}">account</a> by navigating to your order history and selecting the "Return Item" option for the relevant order.</p>
+                                        <p>Alternatively, you can use the return request form below to initiate a return.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion-returns" href="#collapse-return3">
+                                            Refunds and Exchanges
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapse-return3" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <p><strong>Refunds:</strong></p>
+                                        <p>Once we receive and inspect your return, we will notify you of the status of your refund.</p>
+                                        <ul>
+                                            <li>If your return is approved, we will initiate a refund to your original payment method.</li>
+                                            <li>For credit/debit card payments, refunds typically take 5-10 business days to appear on your statement.</li>
+                                            <li>For mobile banking payments, refunds typically take 3-5 business days.</li>
+                                            <li>For Cash on Delivery (COD) payments, refunds will be processed via bank transfer or mobile banking.</li>
+                                        </ul>
+                                        <p><strong>Exchanges:</strong></p>
+                                        <p>If you prefer to exchange an item rather than receive a refund, please specify this when initiating your return. Exchanges are subject to product availability.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion-returns" href="#collapse-return4">
+                                            Damaged or Defective Items
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapse-return4" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <p>If you receive a damaged or defective item, please contact our customer service team immediately at <a href="mailto:support@goldennichebd.com">support@goldennichebd.com</a> or call <a href="tel:+021-95-51-84">+021-95-51-84</a>.</p>
+                                        <p>Please provide:</p>
+                                        <ul>
+                                            <li>Your order number</li>
+                                            <li>A description of the damage or defect</li>
+                                            <li>Photos of the damaged or defective item</li>
+                                        </ul>
+                                        <p>We will arrange for the item to be replaced or refunded as soon as possible. In most cases, we will send a replacement item before receiving the damaged or defective item back.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Return Request Form -->
+                    <div class="return-form-section" style="margin-top: 40px;">
+                        <h4>Return Request Form</h4>
+                        <p>Fill out the form below to initiate a return request. Our customer service team will review your request and contact you within 24-48 hours.</p>
+                        
+                        <form method="post" enctype="multipart/form-data" class="return-form" style="margin-top: 20px;">
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.order_number.id_for_label }}">Order Number *</label>
+                                        {{ form.order_number }}
+                                        {% if form.order_number.errors %}
+                                            <div class="text-danger">
+                                                {{ form.order_number.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.item_name.id_for_label }}">Item Name *</label>
+                                        {{ form.item_name }}
+                                        {% if form.item_name.errors %}
+                                            <div class="text-danger">
+                                                {{ form.item_name.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.email.id_for_label }}">Email *</label>
+                                        {{ form.email }}
+                                        {% if form.email.errors %}
+                                            <div class="text-danger">
+                                                {{ form.email.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.phone.id_for_label }}">Phone *</label>
+                                        {{ form.phone }}
+                                        {% if form.phone.errors %}
+                                            <div class="text-danger">
+                                                {{ form.phone.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.reason.id_for_label }}">Reason for Return *</label>
+                                {{ form.reason }}
+                                {% if form.reason.errors %}
+                                    <div class="text-danger">
+                                        {{ form.reason.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.image.id_for_label }}">Upload Image (Optional)</label>
+                                {{ form.image }}
+                                <small class="form-text text-muted">{{ form.image.help_text }}</small>
+                                {% if form.image.errors %}
+                                    <div class="text-danger">
+                                        {{ form.image.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Return Type *</label>
+                                <div class="radio-options">
+                                    {% for choice in form.return_type %}
+                                        <div class="radio-option">
+                                            {{ choice.tag }}
+                                            <label for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                {% if form.return_type.errors %}
+                                    <div class="text-danger">
+                                        {{ form.return_type.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <button type="submit" class="primary-btn">Submit Return Request</button>
+                        </form>
+                    </div>
+                    
+                    <!-- Contact Information -->
+                    <div class="contact-section" style="margin-top: 40px;">
+                        <h4>Need Help?</h4>
+                        <p>If you have any questions about orders, returns, or refunds, please don't hesitate to contact our customer service team:</p>
+                        <ul>
+                            <li>Email: <a href="mailto:support@goldennichebd.com">support@goldennichebd.com</a></li>
+                            <li>Phone: <a href="tel:+021-95-51-84">+021-95-51-84</a></li>
+                            <li>Hours: Monday - Friday, 9:00 AM - 6:00 PM</li>
+                        </ul>
+                        <p>You can also visit our <a href="{% url 'contact_us' %}">Contact Us</a> page for more ways to get in touch with us.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /SECTION -->
+
+    {% include 'store/footer.html' %}
+
+    <!-- jQuery Plugins -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/slick.min.js' %}"></script>
+    <script src="{% static 'js/nouislider.min.js' %}"></script>
+    <script src="{% static 'js/jquery.zoom.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html> 

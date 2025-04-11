@@ -1,0 +1,188 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Return Requests - Dashboard{% endblock %}
+
+{% block breadcrumb %}
+    <span><a href="{% url 'dashboard:home' %}">Dashboard</a></span> / 
+    <span>Return Requests</span>
+{% endblock %}
+
+{% block content %}
+<div class="return-request-list">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Return Requests</h2>
+    </div>
+    
+    <!-- Alerts for messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Main Card -->
+    <div class="card">
+        <div class="card-body">
+            <!-- Search and Filter -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <form method="get" class="d-flex">
+                        <div class="input-group me-3">
+                            <input type="text" name="q" class="form-control" placeholder="Search by order number..." value="{{ search_query|default:'' }}">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-group-text" for="statusFilter">Status</label>
+                            <select name="status" id="statusFilter" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Statuses</option>
+                                <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="approved" {% if selected_status == 'approved' %}selected{% endif %}>Approved</option>
+                                <option value="rejected" {% if selected_status == 'rejected' %}selected{% endif %}>Rejected</option>
+                                <option value="completed" {% if selected_status == 'completed' %}selected{% endif %}>Completed</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <span class="text-muted">Total Requests: <strong>{{ return_requests.count }}</strong></span>
+                </div>
+            </div>
+            
+            <!-- Return Requests Table -->
+            {% if return_requests %}
+                <div class="table-responsive">
+                    <table id="returnRequestTable" class="datatable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Order #</th>
+                                <th>Item</th>
+                                <th>Type</th>
+                                <th>Email</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th width="120">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in return_requests %}
+                                <tr>
+                                    <td>{{ request.id }}</td>
+                                    <td>{{ request.order_number }}</td>
+                                    <td>{{ request.item_name|truncatechars:30 }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if request.return_type == 'refund' %}info{% else %}primary{% endif %}">
+                                            {{ request.return_type|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ request.email }}</td>
+                                    <td>{{ request.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if request.status == 'pending' %}warning{% elif request.status == 'approved' %}success{% elif request.status == 'rejected' %}danger{% else %}info{% endif %}">
+                                            {{ request.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'dashboard:return_request_edit' request.id %}" class="btn btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#detailModal{{ request.id }}" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Return Request Detail Modal -->
+                                        <div class="modal fade" id="detailModal{{ request.id }}" tabindex="-1" aria-labelledby="detailModalLabel{{ request.id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="detailModalLabel{{ request.id }}">
+                                                            Return Request #{{ request.id }}
+                                                        </h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <h6>Order Information</h6>
+                                                                <p><strong>Order Number:</strong> {{ request.order_number }}</p>
+                                                                <p><strong>Item:</strong> {{ request.item_name }}</p>
+                                                                <p><strong>Return Type:</strong> {{ request.return_type|title }}</p>
+                                                                <p><strong>Status:</strong> 
+                                                                    <span class="badge bg-{% if request.status == 'pending' %}warning{% elif request.status == 'approved' %}success{% elif request.status == 'rejected' %}danger{% else %}info{% endif %}">
+                                                                        {{ request.status|title }}
+                                                                    </span>
+                                                                </p>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <h6>Customer Information</h6>
+                                                                <p><strong>Email:</strong> {{ request.email }}</p>
+                                                                <p><strong>Phone:</strong> {{ request.phone }}</p>
+                                                                <p><strong>Date Submitted:</strong> {{ request.created_at|date:"F d, Y H:i" }}</p>
+                                                                <p><strong>Last Updated:</strong> {{ request.updated_at|date:"F d, Y H:i" }}</p>
+                                                            </div>
+                                                        </div>
+                                                        <hr>
+                                                        <h6>Return Reason</h6>
+                                                        <p>{{ request.reason }}</p>
+                                                        
+                                                        {% if request.image %}
+                                                        <hr>
+                                                        <h6>Attached Image</h6>
+                                                        <img src="{{ request.image.url }}" alt="Return request image" class="img-fluid mb-3" style="max-height: 200px;">
+                                                        {% endif %}
+                                                        
+                                                        {% if request.admin_notes %}
+                                                        <hr>
+                                                        <h6>Admin Notes</h6>
+                                                        <p>{{ request.admin_notes }}</p>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        <a href="{% url 'dashboard:return_request_edit' request.id %}" class="btn btn-primary">
+                                                            <i class="fas fa-edit me-1"></i> Edit Request
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-exchange-alt fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted">No Return Requests Found</h4>
+                    {% if search_query or selected_status %}
+                        <p class="text-muted">No return requests match your search criteria.</p>
+                        <a href="{% url 'dashboard:return_request_list' %}" class="btn btn-outline-secondary mt-3">
+                            <i class="fas fa-undo me-2"></i> Clear Filters
+                        </a>
+                    {% else %}
+                        <p class="text-muted">There are currently no return requests in the system.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- The DataTable initialization is now handled by dashboard.js -->
+{% endblock %} 
